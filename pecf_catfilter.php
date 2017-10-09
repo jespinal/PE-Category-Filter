@@ -2,13 +2,13 @@
 /**
  * @package PECF (PavelEspinal Category Filter)
  * @author Pavel Espinal
- * @version 1.2
+ * @version 1.3
  */
 /*
  Plugin Name:   PE Category Filter
- Plugin URI:    http://pavelespinal.com/resume/downloads/
+ Plugin URI:    https://github.com/jespinal/PE-Category-Filter
  Description:   This plugin filters the Categories that will show up in the front page of your website.<br/> This plugin attempts to be a well written (using WP native methods) way to filter categories on Wordpress.
- Version:       1.2
+ Version:       1.3
  Author:        J. Pavel Espinal
  Author URI:    http://pavelespinal.com/
  License:       GPL2
@@ -36,7 +36,7 @@ add_action( 'pre_get_posts' , 'pecf_categ_excluder' );
 /**
  * PE Categories Excluder
  * 
- * This method receives the $wp_query object as a param and applies the filter
+ * This method receives the $wp_query object as an argument and applies the filter
  * depending on the section of the blog that we are.
  *
  * @param object $input 
@@ -68,7 +68,7 @@ function pecf_categ_menu() {
  * PECF Menu Options
  */
 function pecf_cb_menu_options() {
-    if (!current_user_can('manage_options'))  {
+    if ( ! current_user_can('manage_options'))  {
 		wp_die( __('You do not have sufficient permissions to access this page.') );
 	}
 

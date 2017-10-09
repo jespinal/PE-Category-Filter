@@ -1,10 +1,10 @@
 === PE Category Filter ===
 Contributors: khratos
-Tags: category, filter, category filter, exclude post, home page, exclude from home
+Tags: category, filter, category filter, exclude post, home page, exclude from home, pecf
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=U8W8GKD6KM2G8
 Requires at least: 3.0
-Tested up to: 4.7.5
-Stable tag: 1.2
+Tested up to: 4.8.2
+Stable tag: 1.3
 
 This plugin allows you to exclude posts that belong to certain categories from your home page.
 
@@ -13,7 +13,7 @@ This plugin allows you to exclude posts that belong to certain categories from y
 This plugin allows you to **exclude** posts that belong to certain categories from your **home page**, while they will still be reachable
 from the inner sections of your site.
 
-This is an ad-hoc solution that aims to do **one** thing, and do it **right** with near the smallest footprint possible. So please note the following:
+This is an ad-hoc solution that aims to do **one** thing, and do it **right**, with near the smallest footprint possible. So please note the following:
 
 * The functionality of this plugin can not be limited to a given widget on the home page. Example:
 
@@ -27,7 +27,7 @@ You can see this plugin in action the following projects:
 
 * http://asteriskfaqs.org - Important VoIP community project.
 * http://centosfaq.org
-* http://slackware-es.com - Slackware Linux documentation project (Spanish)
+* http://slackware-es.com - Spanish version of the Slackware Linux project's website (Spanish)
 
 
 == Installation ==
@@ -60,4 +60,9 @@ No. At least not for now. Read the description for more details.
 
 = 1.2 =
 * Global code assessment to ensure compatibility with latest WP versions.
+* Corrections to "readme" file/documentation.
+
+= 1.3 =
+* Global code assessment to ensure compatibility with latest WP versions.
+* Adding the GitHub README.md file (this plugin is now also hosted on github).
 * Corrections to "readme" file/documentation.

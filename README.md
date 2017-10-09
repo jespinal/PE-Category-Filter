@@ -16,8 +16,8 @@ Such a functionality, in my opinion, would be overkilling because what you are l
 You can see this plugin in action the following projects:
 
 * http://asteriskfaqs.org - Important VoIP community project.
-* http://centosfaq.org
-* http://slackware-es.com - Slackware Linux documentation project (Spanish)
+* http://centosfaq.org    - Important community around CentOS Linux.
+* http://slackware-es.com - Spanish version of the Slackware Linux project's website.
 
 ## Motivation
 
