@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ruleset name="WordPress Components Standard" namespace="PavelEspinal\WP\Standard">
+    <!-- @see https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-Ruleset -->
+
+    <description>
+        Custom WordPress Component coding standard.
+    </description>
+
+    <arg name="colors"/>
+    <arg value="sp"/>
+
+    <rule ref="PSR2"/>
+
+    <!-- Specifically turn ON checking for extra whitespace in empty lines -->
+    <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
+        <properties>
+            <property name="ignoreBlankLines" value="false"/>
+        </properties>
+    </rule>
+    <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/>
+    <rule ref="Generic.Files.LineLength">
+        <exclude name="Generic.Files.LineLength.TooLong"/>
+	</rule>
+
+    <!-- Ensure JS files aren't picked up -->
+    <exclude-pattern>*.js</exclude-pattern>
+
+    <!-- Ensure the vendor directory is ignored -->
+    <exclude-pattern>vendor*</exclude-pattern>
+
+    <!-- Folders to test -->
+    <file>./</file>
+</ruleset>

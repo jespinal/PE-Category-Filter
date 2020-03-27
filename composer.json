@@ -1,0 +1,25 @@
+{
+  "name": "pavel_espinal/pe-category-filter",
+  "description": "This plugin allows you to exclude posts that belong to certain categories from your home page.",
+  "type": "wordpress-plugin",
+  "authors": [
+    {
+      "name": "Pavel Espinal",
+      "email": "jose@pavelespinal.com"
+    }
+  ],
+  "require": {
+    "composer/installers": "^1.0"
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^3.2"
+  },
+  "scripts": {
+    "cs": [
+      "./vendor/bin/phpcs"
+    ],
+    "check-code-quality": [
+      "@cs"
+    ]
+  }
+}
