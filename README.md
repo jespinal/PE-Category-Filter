@@ -34,7 +34,7 @@ I decided to maintain the code in Github in order to make it available to a bigg
 
 ```
   "require": {
-    "wpackagist-plugin/pe-category-filter":"^1.3"
+    "wpackagist-plugin/pe-category-filter":"^1.4"
   },
 ```
 
