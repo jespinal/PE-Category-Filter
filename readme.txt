@@ -41,7 +41,7 @@ If you manage your WordPress installation using composer, follow this instructio
 
 ```
   "require": {
-    "wpackagist-plugin/pe-category-filter":"^1.3"
+    "wpackagist-plugin/pe-category-filter":"^1.4"
   },
 ```
 
@@ -58,7 +58,7 @@ If you manage your WordPress installation using composer, follow this instructio
 
 3. Run `composer install`
 
-A third installation method if you are using composer is to add the Github:
+A third installation method if you are using composer is to add the Github repo:
 
 1. Add the following in the `requirements` section of your `composer.json` file:
 

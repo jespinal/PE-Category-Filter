@@ -51,7 +51,7 @@ I decided to maintain the code in Github in order to make it available to a bigg
 
 3. Run `composer install`
 
-**A third installation method if you are using composer is to add the Github:**
+**A third installation method if you are using composer is to add the Github repo:**
 
 1. Add the following in the `requirements` section of your `composer.json` file:
 
