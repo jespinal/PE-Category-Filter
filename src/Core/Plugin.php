@@ -6,6 +6,7 @@ use PavelEspinal\WpPlugins\PECategoryFilter\Admin\SettingsPage;
 use PavelEspinal\WpPlugins\PECategoryFilter\Filters\CategoryFilter;
 use PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterface;
 use PavelEspinal\WpPlugins\PECategoryFilter\Repositories\SettingsRepository;
+use PavelEspinal\WpPlugins\PECategoryFilter\WordPress\WordPressIntegration;
 
 /**
  * Main Plugin Class
@@ -44,8 +45,7 @@ class Plugin {
      * @return void
      */
     public function run(): void {
-        $this->loadTextDomain();
-        $this->registerHooks();
+        $this->initializeWordPressIntegration();
     }
 
     /**
@@ -77,57 +77,24 @@ class Plugin {
                 return new SettingsPage( $settingsRepository );
             }
         );
-    }
 
-    /**
-     * Load text domain for internationalization
-     *
-     * @return void
-     */
-    private function loadTextDomain(): void {
-        add_action(
-            'plugins_loaded',
-            function () {
-                load_plugin_textdomain(
-                    'pe-category-filter',
-                    false,
-                    dirname( plugin_basename( PE_CATEGORY_FILTER_PLUGIN_FILE ) ) . '/languages'
-                );
+        // Register WordPress integration
+        $this->container->bind(
+            WordPressIntegration::class,
+            function ( Container $container ) {
+                return new WordPressIntegration( $container );
             }
         );
     }
 
     /**
-     * Register WordPress hooks
+     * Initialize WordPress integration
      *
      * @return void
      */
-    private function registerHooks(): void {
-        // Register admin hooks
-        add_action( 'admin_menu', array( $this, 'registerAdminHooks' ) );
-
-        // Register public hooks
-        add_action( 'pre_get_posts', array( $this, 'registerPublicHooks' ) );
-    }
-
-    /**
-     * Register admin hooks
-     *
-     * @return void
-     */
-    public function registerAdminHooks(): void {
-        $settingsPage = $this->container->make( SettingsPage::class );
-        $settingsPage->register();
-    }
-
-    /**
-     * Register public hooks
-     *
-     * @return void
-     */
-    public function registerPublicHooks(): void {
-        $categoryFilter = $this->container->make( CategoryFilter::class );
-        add_action( 'pre_get_posts', array( $categoryFilter, 'filterCategories' ) );
+    private function initializeWordPressIntegration(): void {
+        $wordPressIntegration = $this->container->make( WordPressIntegration::class );
+        $wordPressIntegration->initialize();
     }
 
     /**
