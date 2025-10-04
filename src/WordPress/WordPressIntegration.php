@@ -2,9 +2,10 @@
 
 namespace PavelEspinal\WpPlugins\PECategoryFilter\WordPress;
 
+use Exception;
+use PavelEspinal\WpPlugins\PECategoryFilter\Admin\SettingsPage;
 use PavelEspinal\WpPlugins\PECategoryFilter\Core\Container;
 use PavelEspinal\WpPlugins\PECategoryFilter\Filters\CategoryFilter;
-use PavelEspinal\WpPlugins\PECategoryFilter\Admin\SettingsPage;
 
 /**
  * WordPress Integration Service
@@ -42,6 +43,11 @@ class WordPressIntegration
         $this->registerHooks();
         $this->registerFilters();
         $this->registerAdminHooks();
+        
+        // Register admin menu directly if in admin area
+        if (is_admin()) {
+            $this->registerAdminMenu();
+        }
     }
 
     /**
@@ -86,11 +92,6 @@ class WordPressIntegration
      */
     private function registerAdminHooks(): void
     {
-        // Only register admin hooks in admin area
-        if (!is_admin()) {
-            return;
-        }
-
         // Admin menu and settings
         add_action('admin_menu', [$this, 'registerAdminMenu']);
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
@@ -300,7 +301,7 @@ class WordPressIntegration
 
         // Sanitize and validate category IDs
         $sanitized = array_map('absint', $value);
-        return array_filter($sanitized, fn($id) => $id > 0);
+        return array_values(array_filter($sanitized, fn($id) => $id > 0));
     }
 
     /**

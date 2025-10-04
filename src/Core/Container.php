@@ -25,6 +25,13 @@ class Container {
     private array $instances = array();
 
     /**
+     * Singleton services
+     *
+     * @var array<string, bool>
+     */
+    private array $singletons = array();
+
+    /**
      * Bind a service to the container
      *
      * @param string          $abstract The abstract identifier
@@ -44,6 +51,7 @@ class Container {
      */
     public function singleton( string $abstract, callable|string $concrete ): void {
         $this->bind( $abstract, $concrete );
+        $this->singletons[ $abstract ] = true;
     }
 
     /**
@@ -73,8 +81,10 @@ class Container {
             $instance = new $concrete();
         }
 
-        // Store instance for singletons
-        $this->instances[ $abstract ] = $instance;
+        // Only store instance if it's registered as a singleton
+        if ( isset( $this->singletons[ $abstract ] ) ) {
+            $this->instances[ $abstract ] = $instance;
+        }
 
         return $instance;
     }

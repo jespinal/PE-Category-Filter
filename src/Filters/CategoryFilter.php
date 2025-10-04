@@ -53,9 +53,9 @@ class CategoryFilter {
      * @param WP_Query $query WordPress query object
      * @return bool True if query should be filtered
      */
-    private function shouldFilter( WP_Query $query ): bool {
-        // Only filter on home page and not in admin
-        return $query->is_home() && ! $query->is_admin();
+    protected function shouldFilter( WP_Query $query ): bool {
+        // Only filter main query on home page and not in admin
+        return $query->is_main_query() && $query->is_home() && ! is_admin();
     }
 
     /**
