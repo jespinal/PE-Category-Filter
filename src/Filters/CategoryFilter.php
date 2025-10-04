@@ -11,8 +11,8 @@ use WP_Query;
  * @package PE Category Filter
  * @since 2.0.0
  */
-class CategoryFilter
-{
+class CategoryFilter {
+
     /**
      * Settings repository instance
      */
@@ -23,8 +23,7 @@ class CategoryFilter
      *
      * @param SettingsRepositoryInterface $settingsRepository Settings repository
      */
-    public function __construct(SettingsRepositoryInterface $settingsRepository)
-    {
+    public function __construct( SettingsRepositoryInterface $settingsRepository ) {
         $this->settingsRepository = $settingsRepository;
     }
 
@@ -34,19 +33,18 @@ class CategoryFilter
      * @param WP_Query $query WordPress query object
      * @return void
      */
-    public function filterCategories(WP_Query $query): void
-    {
-        if (!$this->shouldFilter($query)) {
+    public function filterCategories( WP_Query $query ): void {
+        if ( ! $this->shouldFilter( $query ) ) {
             return;
         }
 
         $excludedCategories = $this->settingsRepository->getExcludedCategories();
-        
-        if (empty($excludedCategories)) {
+
+        if ( empty( $excludedCategories ) ) {
             return;
         }
 
-        $query->set('category__not_in', $excludedCategories);
+        $query->set( 'category__not_in', $excludedCategories );
     }
 
     /**
@@ -55,10 +53,9 @@ class CategoryFilter
      * @param WP_Query $query WordPress query object
      * @return bool True if query should be filtered
      */
-    private function shouldFilter(WP_Query $query): bool
-    {
+    private function shouldFilter( WP_Query $query ): bool {
         // Only filter on home page and not in admin
-        return $query->is_home() && !$query->is_admin();
+        return $query->is_home() && ! $query->is_admin();
     }
 
     /**
@@ -66,8 +63,7 @@ class CategoryFilter
      *
      * @return array<int> Array of excluded category IDs
      */
-    public function getExcludedCategories(): array
-    {
+    public function getExcludedCategories(): array {
         return $this->settingsRepository->getExcludedCategories();
     }
 
@@ -77,9 +73,8 @@ class CategoryFilter
      * @param int $categoryId Category ID to check
      * @return bool True if category is excluded
      */
-    public function isCategoryExcluded(int $categoryId): bool
-    {
+    public function isCategoryExcluded( int $categoryId ): bool {
         $excludedCategories = $this->settingsRepository->getExcludedCategories();
-        return in_array($categoryId, $excludedCategories, true);
+        return in_array( $categoryId, $excludedCategories, true );
     }
 }

@@ -13,8 +13,8 @@ use PavelEspinal\WpPlugins\PECategoryFilter\Repositories\SettingsRepository;
  * @package PE Category Filter
  * @since 2.0.0
  */
-class Plugin
-{
+class Plugin {
+
     /**
      * Plugin version
      */
@@ -33,8 +33,7 @@ class Plugin
     /**
      * Constructor
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->container = new Container();
         $this->registerServices();
     }
@@ -44,8 +43,7 @@ class Plugin
      *
      * @return void
      */
-    public function run(): void
-    {
+    public function run(): void {
         $this->loadTextDomain();
         $this->registerHooks();
     }
@@ -55,8 +53,7 @@ class Plugin
      *
      * @return void
      */
-    private function registerServices(): void
-    {
+    private function registerServices(): void {
         // Register settings repository
         $this->container->singleton(
             SettingsRepositoryInterface::class,
@@ -66,18 +63,18 @@ class Plugin
         // Register category filter
         $this->container->bind(
             CategoryFilter::class,
-            function (Container $container) {
-                $settingsRepository = $container->make(SettingsRepositoryInterface::class);
-                return new CategoryFilter($settingsRepository);
+            function ( Container $container ) {
+                $settingsRepository = $container->make( SettingsRepositoryInterface::class );
+                return new CategoryFilter( $settingsRepository );
             }
         );
 
         // Register admin settings page
         $this->container->bind(
             SettingsPage::class,
-            function (Container $container) {
-                $settingsRepository = $container->make(SettingsRepositoryInterface::class);
-                return new SettingsPage($settingsRepository);
+            function ( Container $container ) {
+                $settingsRepository = $container->make( SettingsRepositoryInterface::class );
+                return new SettingsPage( $settingsRepository );
             }
         );
     }
@@ -87,15 +84,17 @@ class Plugin
      *
      * @return void
      */
-    private function loadTextDomain(): void
-    {
-        add_action('plugins_loaded', function () {
-            load_plugin_textdomain(
-                'pe-category-filter',
-                false,
-                dirname(plugin_basename(PE_CATEGORY_FILTER_PLUGIN_FILE)) . '/languages'
-            );
-        });
+    private function loadTextDomain(): void {
+        add_action(
+            'plugins_loaded',
+            function () {
+                load_plugin_textdomain(
+                    'pe-category-filter',
+                    false,
+                    dirname( plugin_basename( PE_CATEGORY_FILTER_PLUGIN_FILE ) ) . '/languages'
+                );
+            }
+        );
     }
 
     /**
@@ -103,13 +102,12 @@ class Plugin
      *
      * @return void
      */
-    private function registerHooks(): void
-    {
+    private function registerHooks(): void {
         // Register admin hooks
-        add_action('admin_menu', [$this, 'registerAdminHooks']);
-        
+        add_action( 'admin_menu', array( $this, 'registerAdminHooks' ) );
+
         // Register public hooks
-        add_action('pre_get_posts', [$this, 'registerPublicHooks']);
+        add_action( 'pre_get_posts', array( $this, 'registerPublicHooks' ) );
     }
 
     /**
@@ -117,9 +115,8 @@ class Plugin
      *
      * @return void
      */
-    public function registerAdminHooks(): void
-    {
-        $settingsPage = $this->container->make(SettingsPage::class);
+    public function registerAdminHooks(): void {
+        $settingsPage = $this->container->make( SettingsPage::class );
         $settingsPage->register();
     }
 
@@ -128,10 +125,9 @@ class Plugin
      *
      * @return void
      */
-    public function registerPublicHooks(): void
-    {
-        $categoryFilter = $this->container->make(CategoryFilter::class);
-        add_action('pre_get_posts', [$categoryFilter, 'filterCategories']);
+    public function registerPublicHooks(): void {
+        $categoryFilter = $this->container->make( CategoryFilter::class );
+        add_action( 'pre_get_posts', array( $categoryFilter, 'filterCategories' ) );
     }
 
     /**
@@ -139,8 +135,7 @@ class Plugin
      *
      * @return Container Service container
      */
-    public function getContainer(): Container
-    {
+    public function getContainer(): Container {
         return $this->container;
     }
 
@@ -149,8 +144,7 @@ class Plugin
      *
      * @return string Plugin version
      */
-    public function getVersion(): string
-    {
+    public function getVersion(): string {
         return self::VERSION;
     }
 
@@ -159,8 +153,7 @@ class Plugin
      *
      * @return string Plugin name
      */
-    public function getName(): string
-    {
+    public function getName(): string {
         return self::PLUGIN_NAME;
     }
 }

@@ -10,8 +10,8 @@ use PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterfa
  * @package PE Category Filter
  * @since 2.0.0
  */
-class SettingsRepository implements SettingsRepositoryInterface
-{
+class SettingsRepository implements SettingsRepositoryInterface {
+
     /**
      * WordPress option name for excluded categories
      */
@@ -27,16 +27,15 @@ class SettingsRepository implements SettingsRepositoryInterface
      *
      * @return array<int> Array of category IDs to exclude
      */
-    public function getExcludedCategories(): array
-    {
-        $categories = get_option(self::EXCLUDED_CATEGORIES_OPTION, []);
-        
-        if (!is_array($categories)) {
-            return [];
+    public function getExcludedCategories(): array {
+        $categories = get_option( self::EXCLUDED_CATEGORIES_OPTION, array() );
+
+        if ( ! is_array( $categories ) ) {
+            return array();
         }
 
         // Ensure all values are integers
-        return array_map('absint', $categories);
+        return array_map( 'absint', $categories );
     }
 
     /**
@@ -45,13 +44,12 @@ class SettingsRepository implements SettingsRepositoryInterface
      * @param array<int> $categories Array of category IDs to exclude
      * @return bool True on success, false on failure
      */
-    public function setExcludedCategories(array $categories): bool
-    {
+    public function setExcludedCategories( array $categories ): bool {
         // Sanitize input - ensure all values are positive integers
-        $sanitized = array_map('absint', $categories);
-        $sanitized = array_filter($sanitized, fn($id) => $id > 0);
-        
-        return update_option(self::EXCLUDED_CATEGORIES_OPTION, $sanitized);
+        $sanitized = array_map( 'absint', $categories );
+        $sanitized = array_filter( $sanitized, fn( $id ) => $id > 0 );
+
+        return update_option( self::EXCLUDED_CATEGORIES_OPTION, $sanitized );
     }
 
     /**
@@ -59,13 +57,12 @@ class SettingsRepository implements SettingsRepositoryInterface
      *
      * @return array<string, mixed> Default settings array
      */
-    public function getDefaultSettings(): array
-    {
-        return [
-            'excluded_categories' => [],
-            'version' => '2.0.0',
-            'last_updated' => current_time('mysql'),
-        ];
+    public function getDefaultSettings(): array {
+        return array(
+            'excluded_categories' => array(),
+            'version'             => '2.0.0',
+            'last_updated'        => current_time( 'mysql' ),
+        );
     }
 
     /**
@@ -73,44 +70,41 @@ class SettingsRepository implements SettingsRepositoryInterface
      *
      * @return array<string, mixed> All settings
      */
-    public function getAllSettings(): array
-    {
+    public function getAllSettings(): array {
         $defaults = $this->getDefaultSettings();
-        $settings = get_option(self::SETTINGS_OPTION, []);
-        
-        if (!is_array($settings)) {
+        $settings = get_option( self::SETTINGS_OPTION, array() );
+
+        if ( ! is_array( $settings ) ) {
             return $defaults;
         }
 
-        return wp_parse_args($settings, $defaults);
+        return wp_parse_args( $settings, $defaults );
     }
 
     /**
      * Update a specific setting
      *
      * @param string $key Setting key
-     * @param mixed $value Setting value
+     * @param mixed  $value Setting value
      * @return bool True on success, false on failure
      */
-    public function updateSetting(string $key, mixed $value): bool
-    {
-        $settings = $this->getAllSettings();
-        $settings[$key] = $value;
-        
-        return update_option(self::SETTINGS_OPTION, $settings);
+    public function updateSetting( string $key, mixed $value ): bool {
+        $settings         = $this->getAllSettings();
+        $settings[ $key ] = $value;
+
+        return update_option( self::SETTINGS_OPTION, $settings );
     }
 
     /**
      * Get a specific setting
      *
      * @param string $key Setting key
-     * @param mixed $default Default value if setting doesn't exist
+     * @param mixed  $default Default value if setting doesn't exist
      * @return mixed Setting value or default
      */
-    public function getSetting(string $key, mixed $default = null): mixed
-    {
+    public function getSetting( string $key, mixed $default = null ): mixed {
         $settings = $this->getAllSettings();
-        
-        return $settings[$key] ?? $default;
+
+        return $settings[ $key ] ?? $default;
     }
 }

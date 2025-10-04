@@ -18,6 +18,36 @@
 	<!-- Use WordPress coding standards -->
 	<rule ref="WordPress"/>
 	
+	<!-- Override WordPress tab requirement to use spaces -->
+	<rule ref="Generic.WhiteSpace.DisallowSpaceIndent">
+		<severity>0</severity>
+	</rule>
+	
+	<!-- Allow spaces for indentation -->
+	<rule ref="Generic.WhiteSpace.ScopeIndent">
+		<properties>
+			<property name="indent" value="4"/>
+			<property name="tabIndent" value="false"/>
+		</properties>
+	</rule>
+	
+	<!-- Allow modern naming conventions for our Symfony-inspired architecture -->
+	<rule ref="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid">
+		<severity>0</severity>
+	</rule>
+	
+	<rule ref="WordPress.NamingConventions.ValidVariableName">
+		<severity>0</severity>
+	</rule>
+	
+	<rule ref="WordPress.Files.FileName">
+		<severity>0</severity>
+	</rule>
+	
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<severity>0</severity>
+	</rule>
+	
 	<!-- Custom rules for this project -->
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
