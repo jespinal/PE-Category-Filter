@@ -70,6 +70,33 @@ class SettingsPage {
                 'default'           => array(),
             )
         );
+
+        // Add nonce field for CSRF protection
+        add_action( 'admin_init', array( $this, 'addNonceField' ) );
+    }
+
+    /**
+     * Add nonce field for CSRF protection
+     *
+     * @return void
+     */
+    public function addNonceField(): void {
+        add_settings_field(
+            'pecf_nonce',
+            '',
+            array( $this, 'renderNonceField' ),
+            self::PAGE_SLUG,
+            'pecf_main_section'
+        );
+    }
+
+    /**
+     * Render nonce field
+     *
+     * @return void
+     */
+    public function renderNonceField(): void {
+        wp_nonce_field( 'pecf_save_settings', 'pecf_nonce' );
     }
 
     /**
@@ -79,13 +106,30 @@ class SettingsPage {
      * @return array<int> Sanitized array of category IDs
      */
     public function sanitizeCategories( $value ): array {
+        // Verify nonce for security
+        if ( ! isset( $_POST['pecf_nonce'] ) || ! wp_verify_nonce( $_POST['pecf_nonce'], 'pecf_save_settings' ) ) {
+            wp_die( esc_html__( 'Security check failed. Please try again.', 'pe-category-filter' ) );
+        }
+
         if ( ! is_array( $value ) ) {
             return array();
         }
 
+        // Limit input size to prevent abuse
+        if ( count( $value ) > 100 ) {
+            $value = array_slice( $value, 0, 100 );
+        }
+
         // Sanitize and validate category IDs
         $sanitized = array_map( 'absint', $value );
-        return array_filter( $sanitized, fn( $id ) => $id > 0 );
+        
+        // Additional security: validate category IDs are reasonable
+        $sanitized = array_filter( $sanitized, function( $id ) {
+            return $id > 0 && $id < 999999; // Reasonable limits
+        });
+
+        // Remove duplicates and re-index
+        return array_values( array_unique( $sanitized ) );
     }
 
     /**

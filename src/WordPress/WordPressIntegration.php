@@ -192,10 +192,15 @@ class WordPressIntegration
             return;
         }
 
+        // Use minified assets in production
+        $isDebug = defined('WP_DEBUG') && WP_DEBUG;
+        $cssFile = $isDebug ? 'admin.css' : 'admin.min.css';
+        $jsFile = $isDebug ? 'admin.js' : 'admin.min.js';
+
         // Enqueue admin styles
         wp_enqueue_style(
             'pecf-admin',
-            PE_CATEGORY_FILTER_PLUGIN_URL . 'assets/css/admin.css',
+            PE_CATEGORY_FILTER_PLUGIN_URL . 'assets/css/' . $cssFile,
             [],
             PE_CATEGORY_FILTER_VERSION
         );
@@ -203,7 +208,7 @@ class WordPressIntegration
         // Enqueue admin scripts
         wp_enqueue_script(
             'pecf-admin',
-            PE_CATEGORY_FILTER_PLUGIN_URL . 'assets/js/admin.js',
+            PE_CATEGORY_FILTER_PLUGIN_URL . 'assets/js/' . $jsFile,
             ['jquery'],
             PE_CATEGORY_FILTER_VERSION,
             true
@@ -299,9 +304,21 @@ class WordPressIntegration
             return [];
         }
 
+        // Limit input size to prevent abuse
+        if (count($value) > 100) {
+            $value = array_slice($value, 0, 100);
+        }
+
         // Sanitize and validate category IDs
         $sanitized = array_map('absint', $value);
-        return array_values(array_filter($sanitized, fn($id) => $id > 0));
+        
+        // Additional security: validate category IDs exist and are reasonable
+        $sanitized = array_filter($sanitized, function($id) {
+            return $id > 0 && $id < 999999; // Reasonable limits
+        });
+
+        // Remove duplicates and re-index
+        return array_values(array_unique($sanitized));
     }
 
     /**

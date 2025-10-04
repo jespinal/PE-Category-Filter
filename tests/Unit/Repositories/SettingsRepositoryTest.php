@@ -24,6 +24,20 @@ class SettingsRepositoryTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = new SettingsRepository();
+        
+        // Clear cache before each test
+        wp_cache_delete('pecf_excluded_categories', 'pecf');
+        wp_cache_delete('pecf_all_settings', 'pecf');
+    }
+
+    /**
+     * Tear down test
+     */
+    protected function tearDown(): void
+    {
+        // Clear cache after each test
+        wp_cache_delete('pecf_excluded_categories', 'pecf');
+        wp_cache_delete('pecf_all_settings', 'pecf');
     }
 
     /**
@@ -31,13 +45,8 @@ class SettingsRepositoryTest extends TestCase
      */
     public function testGetExcludedCategoriesEmpty(): void
     {
-        // Mock WordPress get_option to return false
-        $this->mockWordPressFunction('get_option', function ($option) {
-            if ($option === 'pecf_excluded_categories') {
-                return false;
-            }
-            return null;
-        });
+        // Ensure no option is set
+        delete_option('pecf_excluded_categories');
 
         $categories = $this->repository->getExcludedCategories();
         
@@ -68,18 +77,16 @@ class SettingsRepositoryTest extends TestCase
      */
     public function testGetExcludedCategoriesInvalid(): void
     {
-        // Mock WordPress get_option to return non-array
-        $this->mockWordPressFunction('get_option', function ($option) {
-            if ($option === 'pecf_excluded_categories') {
-                return 'invalid';
-            }
-            return null;
-        });
+        // Set invalid data directly
+        update_option('pecf_excluded_categories', 'invalid');
 
         $categories = $this->repository->getExcludedCategories();
         
         $this->assertIsArray($categories);
         $this->assertEmpty($categories);
+
+        // Clean up
+        delete_option('pecf_excluded_categories');
     }
 
     /**

@@ -28,14 +28,35 @@ class SettingsRepository implements SettingsRepositoryInterface {
      * @return array<int> Array of category IDs to exclude
      */
     public function getExcludedCategories(): array {
-        $categories = get_option( self::EXCLUDED_CATEGORIES_OPTION, array() );
+        // Try to get from cache first
+        $cache_key = 'pecf_excluded_categories';
+        $categories = wp_cache_get( $cache_key, 'pecf' );
 
-        if ( ! is_array( $categories ) ) {
-            return array();
+        if ( false === $categories ) {
+            // Record cache miss
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                error_log( 'PECF Cache Miss: excluded_categories' );
+            }
+
+            $categories = get_option( self::EXCLUDED_CATEGORIES_OPTION, array() );
+
+            if ( ! is_array( $categories ) ) {
+                $categories = array();
+            } else {
+                // Ensure all values are integers
+                $categories = array_map( 'absint', $categories );
+            }
+
+            // Cache for 1 hour
+            wp_cache_set( $cache_key, $categories, 'pecf', HOUR_IN_SECONDS );
+        } else {
+            // Record cache hit
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                error_log( 'PECF Cache Hit: excluded_categories' );
+            }
         }
 
-        // Ensure all values are integers
-        return array_map( 'absint', $categories );
+        return $categories;
     }
 
     /**
@@ -48,8 +69,16 @@ class SettingsRepository implements SettingsRepositoryInterface {
         // Sanitize input - ensure all values are positive integers
         $sanitized = array_map( 'absint', $categories );
         $sanitized = array_filter( $sanitized, fn( $id ) => $id > 0 );
+        $sanitized = array_values( $sanitized ); // Re-index array
 
-        return update_option( self::EXCLUDED_CATEGORIES_OPTION, $sanitized );
+        $result = update_option( self::EXCLUDED_CATEGORIES_OPTION, $sanitized );
+
+        if ( $result ) {
+            // Invalidate cache when data changes
+            wp_cache_delete( 'pecf_excluded_categories', 'pecf' );
+        }
+
+        return $result;
     }
 
     /**
@@ -71,14 +100,25 @@ class SettingsRepository implements SettingsRepositoryInterface {
      * @return array<string, mixed> All settings
      */
     public function getAllSettings(): array {
-        $defaults = $this->getDefaultSettings();
-        $settings = get_option( self::SETTINGS_OPTION, array() );
+        // Try to get from cache first
+        $cache_key = 'pecf_all_settings';
+        $settings = wp_cache_get( $cache_key, 'pecf' );
 
-        if ( ! is_array( $settings ) ) {
-            return $defaults;
+        if ( false === $settings ) {
+            $defaults = $this->getDefaultSettings();
+            $raw_settings = get_option( self::SETTINGS_OPTION, array() );
+
+            if ( ! is_array( $raw_settings ) ) {
+                $settings = $defaults;
+            } else {
+                $settings = wp_parse_args( $raw_settings, $defaults );
+            }
+
+            // Cache for 1 hour
+            wp_cache_set( $cache_key, $settings, 'pecf', HOUR_IN_SECONDS );
         }
 
-        return wp_parse_args( $settings, $defaults );
+        return $settings;
     }
 
     /**
@@ -92,7 +132,14 @@ class SettingsRepository implements SettingsRepositoryInterface {
         $settings         = $this->getAllSettings();
         $settings[ $key ] = $value;
 
-        return update_option( self::SETTINGS_OPTION, $settings );
+        $result = update_option( self::SETTINGS_OPTION, $settings );
+
+        if ( $result ) {
+            // Invalidate cache when data changes
+            wp_cache_delete( 'pecf_all_settings', 'pecf' );
+        }
+
+        return $result;
     }
 
     /**
