@@ -272,20 +272,18 @@ class WordPressIntegrationTest extends TestCase
     public function testAddPluginRowMeta(): void
     {
         $existingLinks = ['existing' => 'link'];
-        $pluginFile = 'pe-category-filter/pe-category-filter.php';
+        $pluginFile = plugin_basename(PE_CATEGORY_FILTER_PLUGIN_FILE);
         
-        // Mock WordPress functions
-        $this->mockWordPressFunction('plugin_basename', function ($file) {
-            return 'pe-category-filter/pe-category-filter.php';
-        });
-
         $result = $this->wordPressIntegration->addPluginRowMeta($existingLinks, $pluginFile);
         
         $this->assertIsArray($result);
         $this->assertCount(3, $result);
         $this->assertArrayHasKey('existing', $result);
-        $this->assertStringContainsString('GitHub', $result[1]);
-        $this->assertStringContainsString('Author', $result[2]);
+        
+        // Check that both GitHub and Author links are present
+        $resultString = implode(' ', $result);
+        $this->assertStringContainsString('GitHub', $resultString);
+        $this->assertStringContainsString('Author', $resultString);
     }
 
     /**

@@ -52,17 +52,15 @@ class SettingsRepositoryTest extends TestCase
     {
         $expectedCategories = [1, 2, 3];
         
-        // Mock WordPress get_option to return test data
-        $this->mockWordPressFunction('get_option', function ($option) use ($expectedCategories) {
-            if ($option === 'pecf_excluded_categories') {
-                return $expectedCategories;
-            }
-            return null;
-        });
+        // Set the option directly in WordPress
+        update_option('pecf_excluded_categories', $expectedCategories);
 
         $categories = $this->repository->getExcludedCategories();
         
         $this->assertEquals($expectedCategories, $categories);
+        
+        // Clean up
+        delete_option('pecf_excluded_categories');
     }
 
     /**
@@ -152,13 +150,8 @@ class SettingsRepositoryTest extends TestCase
             'last_updated' => '2025-01-04 12:00:00'
         ];
         
-        // Mock WordPress get_option
-        $this->mockWordPressFunction('get_option', function ($option) use ($expectedSettings) {
-            if ($option === 'pecf_settings') {
-                return $expectedSettings;
-            }
-            return null;
-        });
+        // Set the option directly in WordPress
+        update_option('pecf_settings', $expectedSettings);
 
         $settings = $this->repository->getAllSettings();
         
@@ -167,6 +160,9 @@ class SettingsRepositoryTest extends TestCase
         $this->assertEquals($expectedSettings['version'], $settings['version']);
         $this->assertArrayHasKey('last_updated', $settings);
         $this->assertIsString($settings['last_updated']);
+        
+        // Clean up
+        delete_option('pecf_settings');
     }
 
     /**
@@ -227,17 +223,15 @@ class SettingsRepositoryTest extends TestCase
         $key = 'test_key';
         $expectedValue = 'test_value';
         
-        // Mock WordPress get_option
-        $this->mockWordPressFunction('get_option', function ($option) use ($key, $expectedValue) {
-            if ($option === 'pecf_settings') {
-                return [$key => $expectedValue];
-            }
-            return null;
-        });
+        // Set the option directly in WordPress
+        update_option('pecf_settings', [$key => $expectedValue]);
 
         $value = $this->repository->getSetting($key);
         
         $this->assertEquals($expectedValue, $value);
+        
+        // Clean up
+        delete_option('pecf_settings');
     }
 
     /**
