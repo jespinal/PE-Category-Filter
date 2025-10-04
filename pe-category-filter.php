@@ -2,16 +2,16 @@
 /**
  * @package PECF (PavelEspinal Category Filter)
  * @author Pavel Espinal
- * @version 1.4.0
+ * @version 2.0.0
  */
 
 /*
  Plugin Name:   PE Category Filter
  Plugin URI:    https://github.com/jespinal/PE-Category-Filter
  Description:   This plugin filters the Categories that will show up in the front page of your website.<br/> This plugin attempts to be solid (using WP native methods) way to filter categories on Wordpress.
- Version:       1.4.0
+ Version:       2.0.0
  Author:        J. Pavel Espinal
- Author URI:    https://www.patreon.com/pavel_espinal
+ Author URI:    https://pavelespinal.com/about-me/
  License:       GPL2
 
  Copyright 2020  J. Pavel Espinal  (email : jose@pavelespinal.com)
@@ -30,21 +30,22 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-// No direct calls allowed
-if (! function_exists('add_action')) {
-    echo 'Hello from the other side :)';
+// Prevent direct access
+if (!defined('ABSPATH')) {
     exit;
 }
 
-require_once(plugin_dir_path(__FILE__) . 'class.pe-category-filter.php');
+// Define plugin constants
+define('PE_CATEGORY_FILTER_VERSION', '2.0.0');
+define('PE_CATEGORY_FILTER_PLUGIN_FILE', __FILE__);
+define('PE_CATEGORY_FILTER_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('PE_CATEGORY_FILTER_PLUGIN_URL', plugin_dir_url(__FILE__));
 
-use PavelEspinal\WP\Plugins\PECategoryFilter;
+// Autoloader
+require_once PE_CATEGORY_FILTER_PLUGIN_DIR . 'vendor/autoload.php';
 
-/* Creating an instance of the category filter */
-$categoryFilter = new PECategoryFilter();
+use PavelEspinal\WpPlugins\PECategoryFilter\Core\Plugin;
 
-/* Filtering out posts of disallowed categories */
-add_action('pre_get_posts', [$categoryFilter, 'filterCategories']);
-
-/* Adding the new entry to the menu */
-add_action('admin_menu', [$categoryFilter, 'generateSidebarMenuEntryAndPage']);
+// Initialize plugin
+$plugin = new Plugin();
+$plugin->run();
