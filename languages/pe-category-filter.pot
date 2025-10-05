@@ -1,4 +1,4 @@
-# Copyright (C) 2025 J. Pavel Espinal
+# Copyright (C) 2025 Pavel Espinal
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
