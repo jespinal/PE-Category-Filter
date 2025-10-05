@@ -59,8 +59,24 @@ class Plugin {
             return new WordPressIntegration($container);
         });
 
-        // Register other services...
-        // This will be expanded as we add more services
+        // Register repositories
+        $this->container->singleton(\PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterface::class, function($container) {
+            return new \PavelEspinal\WpPlugins\PECategoryFilter\Repositories\SettingsRepository();
+        });
+
+        // Register filters
+        $this->container->singleton(\PavelEspinal\WpPlugins\PECategoryFilter\Filters\CategoryFilter::class, function($container) {
+            return new \PavelEspinal\WpPlugins\PECategoryFilter\Filters\CategoryFilter(
+                $container->make(\PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterface::class)
+            );
+        });
+
+        // Register admin services
+        $this->container->singleton(\PavelEspinal\WpPlugins\PECategoryFilter\Admin\SettingsPage::class, function($container) {
+            return new \PavelEspinal\WpPlugins\PECategoryFilter\Admin\SettingsPage(
+                $container->make(\PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterface::class)
+            );
+        });
     }
 
     /**

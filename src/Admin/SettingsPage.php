@@ -69,13 +69,8 @@ class SettingsPage {
             'pecf_settings'
         );
 
-        add_settings_field(
-            'pecf_excluded_categories',
-            __('Excluded Categories', 'pe-category-filter'),
-            [$this, 'renderCategoriesField'],
-            'pecf_settings',
-            'pecf_main_section'
-        );
+        // Note: Categories field is rendered directly in the template
+        // to avoid duplication with do_settings_sections()
     }
 
     /**
@@ -99,40 +94,6 @@ class SettingsPage {
         echo '<p>' . esc_html__('Configure which categories should be excluded from the home page.', 'pe-category-filter') . '</p>';
     }
 
-    /**
-     * Render categories field
-     *
-     * @return void
-     */
-    public function renderCategoriesField(): void {
-        $categories = get_categories(['hide_empty' => false]);
-        $excludedCategories = $this->settingsRepository->getExcludedCategories();
-
-        if (empty($categories)) {
-            echo '<p class="description">' . esc_html__('No categories found. Create some categories first.', 'pe-category-filter') . '</p>';
-            return;
-        }
-
-        echo '<div class="pecf-categories-list">';
-        foreach ($categories as $category) {
-            $checked = in_array($category->term_id, $excludedCategories, true) ? 'checked' : '';
-            printf(
-                '<label for="category-%d" class="pecf-category-item">
-                    <input type="checkbox" id="category-%d" name="pecf_excluded_categories[]" value="%d" %s />
-                    <span class="category-name">%s</span>
-                    <span class="category-count">(%d %s)</span>
-                </label>',
-                $category->term_id,
-                $category->term_id,
-                $category->term_id,
-                $checked,
-                esc_html($category->name),
-                $category->count,
-                esc_html__('posts', 'pe-category-filter')
-            );
-        }
-        echo '</div>';
-    }
 
     /**
      * Sanitize categories input
@@ -145,10 +106,8 @@ class SettingsPage {
             return [];
         }
 
-        // Validate nonce for security
-        if (!isset($_POST['pecf_nonce']) || !wp_verify_nonce($_POST['pecf_nonce'], 'pecf_save_settings')) {
-            wp_die(esc_html__('Security check failed. Please try again.', 'pe-category-filter'));
-        }
+        // WordPress settings_fields() already handles nonce verification
+        // No additional nonce check needed here
 
         // Limit to 100 categories to prevent abuse
         if (count($value) > 100) {

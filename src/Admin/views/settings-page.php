@@ -15,25 +15,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div class="wrap pecf-settings-page">
     <h1><?php esc_html_e( 'PE Category Filter Settings', 'pe-category-filter' ); ?></h1>
     
-    <div class="notice notice-info">
-        <p>
-            <strong><?php esc_html_e( 'How it works:', 'pe-category-filter' ); ?></strong>
-            <?php esc_html_e( 'Select the categories you want to exclude from the home page. These posts will still be accessible through category pages, search, and direct URLs.', 'pe-category-filter' ); ?>
-        </p>
-    </div>
     
-    <?php
-    // Show success message if settings were saved
-    if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] === 'true' ) :
-    ?>
-        <div class="notice notice-success is-dismissible">
-            <p>
-                <span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span>
-                <strong><?php esc_html_e( 'Settings saved successfully!', 'pe-category-filter' ); ?></strong>
-                <?php esc_html_e( 'Your category filter settings have been updated.', 'pe-category-filter' ); ?>
-            </p>
-        </div>
-    <?php endif; ?>
+        <?php
+        // Show success message if settings were saved
+        if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] === 'true' ) :
+        ?>
+            <div class="notice notice-success is-dismissible">
+                <p>
+                    <span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span>
+                    <strong><?php esc_html_e( 'Settings saved successfully!', 'pe-category-filter' ); ?></strong>
+                    <?php esc_html_e( 'Your category filter settings have been updated.', 'pe-category-filter' ); ?>
+                </p>
+            </div>
+        <?php endif; ?>
 
     <form method="post" action="options.php" id="pecf-settings-form">
         <?php
@@ -94,9 +88,6 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <?php endif; ?>
                     </fieldset>
                     
-                    <p class="description">
-                        <?php esc_html_e( 'Select categories to exclude from the home page. These posts will still be accessible through category pages, search, and direct URLs.', 'pe-category-filter' ); ?>
-                    </p>
                 </td>
             </tr>
         </table>
