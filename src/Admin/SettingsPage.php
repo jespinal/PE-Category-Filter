@@ -38,13 +38,16 @@ class SettingsPage {
      * @return void
      */
     public function addAdminMenu(): void {
-        add_options_page(
+        $hook = add_options_page(
             __('PE Category Filter Settings', 'pe-category-filter'),
             __('PECF Plugin', 'pe-category-filter'),
             'manage_options',
             'pecf-settings',
             [$this, 'renderSettingsPage']
         );
+        
+        // Add help tab
+        add_action("load-{$hook}", [$this, 'addHelpTab']);
     }
 
     /**
@@ -117,5 +120,32 @@ class SettingsPage {
         // Sanitize and validate
         $sanitized = array_map('absint', $value);
         return array_values(array_unique(array_filter($sanitized, fn($id) => $id > 0 && $id < 999999)));
+    }
+
+    /**
+     * Add help tab to settings page
+     *
+     * @return void
+     */
+    public function addHelpTab(): void {
+        $screen = get_current_screen();
+        
+        $screen->add_help_tab([
+            'id' => 'pecf-overview',
+            'title' => __('Overview', 'pe-category-filter'),
+            'content' => '<p>' . __('PE Category Filter allows you to exclude specific categories from your home page while keeping those posts accessible through category archives, search, and direct URLs.', 'pe-category-filter') . '</p>'
+        ]);
+        
+        $screen->add_help_tab([
+            'id' => 'pecf-usage',
+            'title' => __('How to Use', 'pe-category-filter'),
+            'content' => '<p>' . __('Simply select the categories you want to exclude from the home page and click "Save Changes". Posts from excluded categories will not appear on the home page but remain accessible elsewhere.', 'pe-category-filter') . '</p>'
+        ]);
+        
+        $screen->set_help_sidebar(
+            '<p><strong>' . __('For more information:', 'pe-category-filter') . '</strong></p>' .
+            '<p><a href="https://github.com/jespinal/PE-Category-Filter/issues" target="_blank">' . __('Report a bug', 'pe-category-filter') . '</a></p>' .
+            '<p><a href="https://pavelespinal.com/wordpress-plugins-pe-category-filter/" target="_blank">' . __('Plugin Homepage', 'pe-category-filter') . '</a></p>'
+        );
     }
 }

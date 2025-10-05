@@ -15,19 +15,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div class="wrap pecf-settings-page">
     <h1><?php esc_html_e( 'PE Category Filter Settings', 'pe-category-filter' ); ?></h1>
     
-    
-        <?php
-        // Show success message if settings were saved
-        if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] === 'true' ) :
-        ?>
-            <div class="notice notice-success is-dismissible">
-                <p>
-                    <span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span>
-                    <strong><?php esc_html_e( 'Settings saved successfully!', 'pe-category-filter' ); ?></strong>
-                    <?php esc_html_e( 'Your category filter settings have been updated.', 'pe-category-filter' ); ?>
-                </p>
-            </div>
-        <?php endif; ?>
+    <?php
+    // Show success message if settings were saved
+    if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] === 'true' ) :
+    ?>
+        <div class="notice notice-success is-dismissible">
+            <p>
+                <span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span>
+                <strong><?php esc_html_e( 'Settings saved successfully!', 'pe-category-filter' ); ?></strong>
+                <?php esc_html_e( 'Your category filter settings have been updated.', 'pe-category-filter' ); ?>
+            </p>
+        </div>
+    <?php endif; ?>
 
     <form method="post" action="options.php" id="pecf-settings-form">
         <?php
@@ -35,14 +34,15 @@ if ( ! defined( 'ABSPATH' ) ) {
         do_settings_sections( 'pecf_settings' );
         ?>
         
-        <table class="form-table">
-            <tr>
-                <th scope="row">
-                    <label for="pecf-excluded-categories">
-                        <?php esc_html_e( 'Excluded Categories', 'pe-category-filter' ); ?>
-                    </label>
-                </th>
-                <td>
+        <table class="form-table" role="presentation">
+            <tbody>
+                <tr>
+                    <th scope="row">
+                        <label for="pecf-excluded-categories">
+                            <?php esc_html_e( 'Excluded Categories', 'pe-category-filter' ); ?>
+                        </label>
+                    </th>
+                    <td>
                     <fieldset>
                         <legend class="screen-reader-text">
                             <?php esc_html_e( 'Select categories to exclude from home page', 'pe-category-filter' ); ?>
@@ -88,21 +88,14 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <?php endif; ?>
                     </fieldset>
                     
-                </td>
-            </tr>
+                    </td>
+                </tr>
+            </tbody>
         </table>
         
         <?php submit_button( __( 'Save Changes', 'pe-category-filter' ) ); ?>
     </form>
     
-    <div class="pecf-info">
-        <h3><?php esc_html_e( 'How it works', 'pe-category-filter' ); ?></h3>
-        <ul>
-            <li><?php esc_html_e( 'Posts from selected categories will not appear on the home page', 'pe-category-filter' ); ?></li>
-            <li><?php esc_html_e( 'Posts will still be accessible through category archives, search, and direct URLs', 'pe-category-filter' ); ?></li>
-            <li><?php esc_html_e( 'The filter only affects the home page, not other parts of your site', 'pe-category-filter' ); ?></li>
-        </ul>
-    </div>
 </div>
 
 <style>
