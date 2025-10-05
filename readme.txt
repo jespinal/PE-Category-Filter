@@ -2,7 +2,7 @@
 Contributors: jespinal
 Tags: category, filter, modern, performance, security, accessibility, exclude, home page, pecf
 Requires PHP: 8.3
-Requires at least: 5.0
+Requires at least: 6.0
 Tested up to: 6.4
 Stable tag: 2.0.0
 
@@ -17,7 +17,7 @@ PE Category Filter is a modern WordPress plugin that allows you to exclude speci
 * **Modern Architecture:** Symfony-inspired dependency injection and service layer patterns
 * **Performance Optimization:** Intelligent caching with 80% reduction in database queries
 * **Security Enhancements:** CSRF protection, input validation, and output escaping
-* **Accessibility:** WCAG AA compliance with screen reader support and keyboard navigation
+* **Accessibility:** Screen reader support and keyboard navigation
 * **Testing:** Comprehensive test suite with 51 tests covering all functionality
 * **Documentation:** Complete user and developer guides with troubleshooting support
 
@@ -76,7 +76,7 @@ Presumably, yes, the plugin should work with WordPress Multisite (not comprehens
 
 = Is this plugin accessible? =
 
-Yes, the plugin is fully WCAG AA compliant with screen reader support and keyboard navigation.
+Yes, the plugin supports screen readers and keyboard navigation.
 
 = Does this plugin affect SEO? =
 
@@ -110,7 +110,7 @@ Yes, the plugin works with all major page builders including Elementor, Gutenber
 * Symfony-inspired dependency injection
 * Performance optimization with intelligent caching
 * Security enhancements with CSRF protection
-* WCAG AA accessibility compliance
+* Screen reader support and keyboard navigation
 * Comprehensive testing suite (51 tests)
 * Modern PHP 8.3+ features
 * Complete documentation overhaul
@@ -141,4 +141,4 @@ Yes, the plugin works with all major page builders including Elementor, Gutenber
 == Upgrade Notice ==
 
 = 2.0.0 =
-Major modernization with new architecture, performance improvements, security enhancements, and accessibility features. Requires PHP 8.3+.
+Major modernization with new architecture, performance improvements, and security enhancements. Requires PHP 8.3+.

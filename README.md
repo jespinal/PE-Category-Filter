@@ -11,13 +11,13 @@
 - **Modern Architecture:** Symfony-inspired dependency injection and service layer patterns
 - **Performance Optimization:** Intelligent caching with 80% reduction in database queries
 - **Security Enhancements:** CSRF protection, input validation, and output escaping
-- **Accessibility:** WCAG AA compliance with screen reader support and keyboard navigation
+- **Accessibility:** Screen reader support and keyboard navigation
 - **Testing:** Comprehensive test suite with 51 tests covering all functionality
 - **Documentation:** Complete user and developer guides with troubleshooting support
 
 ## 📋 **Requirements**
 
-- **WordPress:** 5.0 or higher
+- **WordPress:** 6.0 or higher
 - **PHP:** 8.3 or higher  
 - **MySQL:** 5.7 or higher (or MariaDB 10.3+)
 
@@ -62,7 +62,7 @@ This plugin uses modern PHP patterns inspired by Symfony:
 ## 🧪 **Development**
 
 ### **Prerequisites**
-- WordPress 5.0+
+- WordPress 6.0+
 - PHP 8.3+
 - MySQL 5.7+
 - Composer
@@ -116,7 +116,7 @@ Originally developed in **2012**, this plugin has been maintained for over 13 ye
 - **WordPress Standards:** Full compliance with WordPress coding standards
 - **Performance:** Intelligent caching reduces database queries by 80%
 - **Security:** CSRF protection, input validation, and output escaping
-- **Accessibility:** WCAG AA compliance with screen reader support
+- **Accessibility:** Screen reader support and keyboard navigation
 - **Testing:** 51 comprehensive tests with real WordPress environment
 
 ## 📄 **License**

@@ -3,17 +3,17 @@
   "description": "Modern WordPress plugin for filtering categories from home page with enterprise-grade architecture, performance optimization, and security enhancements.",
   "type": "wordpress-plugin",
   "license": "GPL-2.0-or-later",
-  "keywords": ["wordpress", "plugin", "category", "filter", "modern", "performance", "security", "accessibility", "pe-category-filter"],
-  "homepage": "https://pavelespinal.com/plugins/pe-category-filter/",
+  "keywords": ["wordpress", "plugin", "category", "filter", "modern", "performance", "security", "pe-category-filter"],
+  "homepage": "https://pavelespinal.com/wordpress-plugins-pe-category-filter/",
   "support": {
     "issues": "https://github.com/jespinal/PE-Category-Filter/issues",
     "source": "https://github.com/jespinal/PE-Category-Filter"
   },
   "authors": [
     {
-      "name": "J. Pavel Espinal",
+      "name": "Pavel Espinal",
       "email": "jose@pavelespinal.com",
-      "homepage": "https://pavelespinal.com/"
+      "homepage": "https://pavelespinal.com/about-me/"
     }
   ],
   "require": {
