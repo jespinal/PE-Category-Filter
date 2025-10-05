@@ -1,26 +1,40 @@
 <?php
+/**
+ * Settings Repository
+ *
+ * @package PE Category Filter
+ * @since 2.0.0
+ */
 
 namespace PavelEspinal\WpPlugins\PECategoryFilter\Repositories;
 
 use PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterface;
 
 /**
- * Settings Repository Implementation
+ * Settings Repository
  *
- * @package PE Category Filter
- * @since 2.0.0
+ * Handles data access for plugin settings with intelligent caching.
  */
 class SettingsRepository implements SettingsRepositoryInterface {
-
     /**
-     * WordPress option name for excluded categories
+     * Excluded categories option name
      */
     private const EXCLUDED_CATEGORIES_OPTION = 'pecf_excluded_categories';
 
     /**
-     * WordPress option name for plugin settings
+     * Settings option name
      */
     private const SETTINGS_OPTION = 'pecf_settings';
+
+    /**
+     * Cache group for WordPress object cache
+     */
+    private const CACHE_GROUP = 'pecf';
+
+    /**
+     * Cache expiration time (1 hour)
+     */
+    private const CACHE_EXPIRATION = HOUR_IN_SECONDS;
 
     /**
      * Get excluded categories
@@ -28,32 +42,19 @@ class SettingsRepository implements SettingsRepositoryInterface {
      * @return array<int> Array of category IDs to exclude
      */
     public function getExcludedCategories(): array {
-        // Try to get from cache first
         $cache_key = 'pecf_excluded_categories';
-        $categories = wp_cache_get( $cache_key, 'pecf' );
+        $categories = wp_cache_get($cache_key, self::CACHE_GROUP);
 
-        if ( false === $categories ) {
-            // Record cache miss
-            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-                error_log( 'PECF Cache Miss: excluded_categories' );
-            }
-
-            $categories = get_option( self::EXCLUDED_CATEGORIES_OPTION, array() );
-
-            if ( ! is_array( $categories ) ) {
-                $categories = array();
+        if (false === $categories) {
+            $categories = get_option(self::EXCLUDED_CATEGORIES_OPTION, []);
+            
+            if (!is_array($categories)) {
+                $categories = [];
             } else {
-                // Ensure all values are integers
-                $categories = array_map( 'absint', $categories );
+                $categories = array_map('absint', $categories);
             }
 
-            // Cache for 1 hour
-            wp_cache_set( $cache_key, $categories, 'pecf', HOUR_IN_SECONDS );
-        } else {
-            // Record cache hit
-            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-                error_log( 'PECF Cache Hit: excluded_categories' );
-            }
+            wp_cache_set($cache_key, $categories, self::CACHE_GROUP, self::CACHE_EXPIRATION);
         }
 
         return $categories;
@@ -65,57 +66,36 @@ class SettingsRepository implements SettingsRepositoryInterface {
      * @param array<int> $categories Array of category IDs to exclude
      * @return bool True on success, false on failure
      */
-    public function setExcludedCategories( array $categories ): bool {
-        // Sanitize input - ensure all values are positive integers
-        $sanitized = array_map( 'absint', $categories );
-        $sanitized = array_filter( $sanitized, fn( $id ) => $id > 0 );
-        $sanitized = array_values( $sanitized ); // Re-index array
+    public function setExcludedCategories(array $categories): bool {
+        // Sanitize and validate categories
+        $sanitized = array_map('absint', $categories);
+        $sanitized = array_values(array_unique(array_filter($sanitized, fn($id) => $id > 0)));
 
-        $result = update_option( self::EXCLUDED_CATEGORIES_OPTION, $sanitized );
+        $result = update_option(self::EXCLUDED_CATEGORIES_OPTION, $sanitized);
 
-        if ( $result ) {
-            // Invalidate cache when data changes
-            wp_cache_delete( 'pecf_excluded_categories', 'pecf' );
+        if ($result) {
+            // Clear cache
+            wp_cache_delete('pecf_excluded_categories', self::CACHE_GROUP);
         }
 
         return $result;
     }
 
     /**
-     * Get default settings
+     * Get all plugin settings
      *
-     * @return array<string, mixed> Default settings array
-     */
-    public function getDefaultSettings(): array {
-        return array(
-            'excluded_categories' => array(),
-            'version'             => '2.0.0',
-            'last_updated'        => current_time( 'mysql' ),
-        );
-    }
-
-    /**
-     * Get all settings
-     *
-     * @return array<string, mixed> All settings
+     * @return array<string, mixed> All plugin settings
      */
     public function getAllSettings(): array {
-        // Try to get from cache first
         $cache_key = 'pecf_all_settings';
-        $settings = wp_cache_get( $cache_key, 'pecf' );
+        $settings = wp_cache_get($cache_key, self::CACHE_GROUP);
 
-        if ( false === $settings ) {
-            $defaults = $this->getDefaultSettings();
-            $raw_settings = get_option( self::SETTINGS_OPTION, array() );
+        if (false === $settings) {
+            $settings = [
+                'excluded_categories' => $this->getExcludedCategories(),
+            ];
 
-            if ( ! is_array( $raw_settings ) ) {
-                $settings = $defaults;
-            } else {
-                $settings = wp_parse_args( $raw_settings, $defaults );
-            }
-
-            // Cache for 1 hour
-            wp_cache_set( $cache_key, $settings, 'pecf', HOUR_IN_SECONDS );
+            wp_cache_set($cache_key, $settings, self::CACHE_GROUP, self::CACHE_EXPIRATION);
         }
 
         return $settings;
@@ -125,33 +105,19 @@ class SettingsRepository implements SettingsRepositoryInterface {
      * Update a specific setting
      *
      * @param string $key Setting key
-     * @param mixed  $value Setting value
+     * @param mixed $value Setting value
      * @return bool True on success, false on failure
      */
-    public function updateSetting( string $key, mixed $value ): bool {
-        $settings         = $this->getAllSettings();
-        $settings[ $key ] = $value;
+    public function updateSetting(string $key, mixed $value): bool {
+        switch ($key) {
+            case 'excluded_categories':
+                if (!is_array($value)) {
+                    return false;
+                }
+                return $this->setExcludedCategories($value);
 
-        $result = update_option( self::SETTINGS_OPTION, $settings );
-
-        if ( $result ) {
-            // Invalidate cache when data changes
-            wp_cache_delete( 'pecf_all_settings', 'pecf' );
+            default:
+                return false;
         }
-
-        return $result;
-    }
-
-    /**
-     * Get a specific setting
-     *
-     * @param string $key Setting key
-     * @param mixed  $default Default value if setting doesn't exist
-     * @return mixed Setting value or default
-     */
-    public function getSetting( string $key, mixed $default = null ): mixed {
-        $settings = $this->getAllSettings();
-
-        return $settings[ $key ] ?? $default;
     }
 }

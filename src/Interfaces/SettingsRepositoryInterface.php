@@ -1,15 +1,19 @@
 <?php
-
-namespace PavelEspinal\WpPlugins\PECategoryFilter\Interfaces;
-
 /**
  * Settings Repository Interface
  *
  * @package PE Category Filter
  * @since 2.0.0
  */
-interface SettingsRepositoryInterface {
 
+namespace PavelEspinal\WpPlugins\PECategoryFilter\Interfaces;
+
+/**
+ * Settings Repository Interface
+ *
+ * Defines the contract for settings data access.
+ */
+interface SettingsRepositoryInterface {
     /**
      * Get excluded categories
      *
@@ -23,19 +27,12 @@ interface SettingsRepositoryInterface {
      * @param array<int> $categories Array of category IDs to exclude
      * @return bool True on success, false on failure
      */
-    public function setExcludedCategories( array $categories ): bool;
+    public function setExcludedCategories(array $categories): bool;
 
     /**
-     * Get default settings
+     * Get all plugin settings
      *
-     * @return array<string, mixed> Default settings array
-     */
-    public function getDefaultSettings(): array;
-
-    /**
-     * Get all settings
-     *
-     * @return array<string, mixed> All settings
+     * @return array<string, mixed> All plugin settings
      */
     public function getAllSettings(): array;
 
@@ -43,17 +40,8 @@ interface SettingsRepositoryInterface {
      * Update a specific setting
      *
      * @param string $key Setting key
-     * @param mixed  $value Setting value
+     * @param mixed $value Setting value
      * @return bool True on success, false on failure
      */
-    public function updateSetting( string $key, mixed $value ): bool;
-
-    /**
-     * Get a specific setting
-     *
-     * @param string $key Setting key
-     * @param mixed  $default Default value if setting doesn't exist
-     * @return mixed Setting value or default
-     */
-    public function getSetting( string $key, mixed $default = null ): mixed;
+    public function updateSetting(string $key, mixed $value): bool;
 }

@@ -1,38 +1,50 @@
-# Documentation files
-docs/
+# Dependencies
+vendor/
+node_modules/
 
-# IDE and editor files
+# Build artifacts
+build/
+dist/
+
+# IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
-# OS generated files
+# OS files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
-
-# Composer
-/vendor/
-
-# WordPress
-wp-config.php
-wp-content/uploads/
-wp-content/cache/
-wp-content/backup-db/
-wp-content/advanced-cache.php
-wp-content/wp-cache-config.php
 
 # Logs
 *.log
-error_log
-debug.log
+logs/
+
+# Cache
+cache/
+*.cache
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# WordPress specific
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+
+# Documentation (as requested)
+docs/
+
+# Test files
+.phpunit.cache/
+test-results/
 
 # Temporary files
-*.tmp
-*.temp
+tmp/
+temp/
