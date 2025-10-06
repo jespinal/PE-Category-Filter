@@ -15,19 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div class="wrap pecf-settings-page">
     <h1><?php esc_html_e( 'PE Category Filter Settings', 'pe-category-filter' ); ?></h1>
     
-    <?php
-    // Show success message if settings were saved
-    if ( isset( $_GET['settings-updated'] ) && $_GET['settings-updated'] === 'true' ) :
-    ?>
-        <div class="notice notice-success is-dismissible">
-            <p>
-                <span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span>
-                <strong><?php esc_html_e( 'Settings saved successfully!', 'pe-category-filter' ); ?></strong>
-                <?php esc_html_e( 'Your category filter settings have been updated.', 'pe-category-filter' ); ?>
-            </p>
-        </div>
-    <?php endif; ?>
-
     <form method="post" action="options.php" id="pecf-settings-form">
         <?php
         settings_fields( 'pecf_settings' );
