@@ -61,15 +61,43 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 </p>
                             </div>
                         <?php else : ?>
+                            <!-- Bulk Actions -->
+                            <div class="pecf-bulk-actions">
+                                <button type="button" class="button button-secondary" id="select-all-categories">
+                                    <?php esc_html_e( 'Select All', 'pe-category-filter' ); ?>
+                                </button>
+                                <button type="button" class="button button-secondary" id="deselect-all-categories">
+                                    <?php esc_html_e( 'Deselect All', 'pe-category-filter' ); ?>
+                                </button>
+                                <span class="pecf-selection-count">
+                                    <?php 
+                                    $selectedCount = count( $excludedCategories );
+                                    printf( 
+                                        esc_html( _n( '%d category selected', '%d categories selected', $selectedCount, 'pe-category-filter' ) ), 
+                                        $selectedCount 
+                                    ); 
+                                    ?>
+                                </span>
+                            </div>
+                            
+                            <!-- Search/Filter -->
+                            <div class="pecf-search-box">
+                                <input type="text" id="category-search" placeholder="<?php esc_attr_e( 'Search categories...', 'pe-category-filter' ); ?>" class="regular-text" />
+                            </div>
+                            
+                            <!-- Categories List -->
                             <div class="pecf-categories-list">
-                                <?php foreach ( $categories as $category ) : ?>
-                                    <label for="category-<?php echo esc_attr( $category->term_id ); ?>" class="pecf-category-item">
+                                <?php foreach ( $categories as $category ) : 
+                                    $isExcluded = in_array( $category->term_id, $excludedCategories, true );
+                                ?>
+                                    <label for="category-<?php echo esc_attr( $category->term_id ); ?>" class="pecf-category-item" data-category-name="<?php echo esc_attr( strtolower( $category->name ) ); ?>">
                                         <input 
                                             type="checkbox" 
                                             id="category-<?php echo esc_attr( $category->term_id ); ?>"
                                             name="pecf_excluded_categories[]" 
                                             value="<?php echo esc_attr( $category->term_id ); ?>"
-                                            <?php checked( in_array( $category->term_id, $excludedCategories, true ) ); ?>
+                                            <?php checked( $isExcluded ); ?>
+                                            class="category-checkbox"
                                             aria-describedby="category-<?php echo esc_attr( $category->term_id ); ?>-help"
                                         />
                                         <span class="category-name"><?php echo esc_html( $category->name ); ?></span>
@@ -77,11 +105,10 @@ if ( ! defined( 'ABSPATH' ) ) {
                                             (<?php echo esc_html( $category->count ); ?> <?php esc_html_e( 'posts', 'pe-category-filter' ); ?>)
                                         </span>
                                         <?php if ( $category->description ) : ?>
-                                            <span class="category-description"><?php echo esc_html( $category->description ); ?></span>
+                                            <span id="category-<?php echo esc_attr( $category->term_id ); ?>-help" class="category-description">
+                                                <?php echo esc_html( $category->description ); ?>
+                                            </span>
                                         <?php endif; ?>
-                                        <span id="category-<?php echo esc_attr( $category->term_id ); ?>-help" class="description">
-                                            <?php esc_html_e( 'This category will be excluded from the home page', 'pe-category-filter' ); ?>
-                                        </span>
                                     </label>
                                 <?php endforeach; ?>
                             </div>
@@ -98,6 +125,48 @@ if ( ! defined( 'ABSPATH' ) ) {
     
 </div>
 
+<script>
+jQuery(document).ready(function($) {
+    // Bulk actions
+    $('#select-all-categories').on('click', function() {
+        $('.category-checkbox').prop('checked', true);
+        updateSelectionCount();
+    });
+    
+    $('#deselect-all-categories').on('click', function() {
+        $('.category-checkbox').prop('checked', false);
+        updateSelectionCount();
+    });
+    
+    // Search functionality
+    $('#category-search').on('keyup', function() {
+        var searchTerm = $(this).val().toLowerCase();
+        $('.pecf-category-item').each(function() {
+            var categoryName = $(this).data('category-name');
+            if (categoryName.indexOf(searchTerm) !== -1) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+    
+    // Update selection count
+    $('.category-checkbox').on('change', function() {
+        updateSelectionCount();
+    });
+    
+    function updateSelectionCount() {
+        var selectedCount = $('.category-checkbox:checked').length;
+        var totalCount = $('.category-checkbox').length;
+        $('.pecf-selection-count').text(selectedCount + ' of ' + totalCount + ' categories selected');
+    }
+    
+    // Initialize count
+    updateSelectionCount();
+});
+</script>
+
 <style>
 .pecf-settings-page {
     max-width: 800px;
@@ -107,22 +176,111 @@ if ( ! defined( 'ABSPATH' ) ) {
     margin: 20px 0;
 }
 
-.pecf-categories-list {
-    max-height: 400px;
-    overflow-y: auto;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+/* Bulk Actions */
+.pecf-bulk-actions {
+    margin-bottom: 20px;
     padding: 15px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.pecf-bulk-actions button {
+    margin-right: 0;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.pecf-bulk-actions button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.pecf-selection-count {
+    color: #6c757d;
+    font-weight: 500;
+    margin-left: 20px;
+    font-size: 0.95em;
+    align-self: center;
+}
+
+/* Search Box */
+.pecf-search-box {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.pecf-search-box input {
+    width: 100%;
+    max-width: 350px;
+    padding: 10px 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s ease;
     background: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.pecf-search-box input:focus {
+    border-color: #007cba;
+    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+    outline: none;
+}
+
+.pecf-search-box::before {
+    content: "🔍";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+/* Categories List */
+.pecf-categories-list {
+    max-height: 450px;
+    overflow-y: auto;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    position: relative;
+}
+
+.pecf-categories-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.pecf-categories-list::-webkit-scrollbar-track {
+    background: #f1f3f4;
+    border-radius: 4px;
+}
+
+.pecf-categories-list::-webkit-scrollbar-thumb {
+    background: #c1c8cd;
+    border-radius: 4px;
+}
+
+.pecf-categories-list::-webkit-scrollbar-thumb:hover {
+    background: #a8b2ba;
 }
 
 .pecf-category-item {
-    display: flex;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background-color 0.2s ease;
+    display: block;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f2f5;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
 }
 
 .pecf-category-item:last-child {
@@ -130,35 +288,53 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 .pecf-category-item:hover {
-    background-color: #f9f9f9;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    transform: translateX(2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .pecf-category-item input[type="checkbox"] {
     margin-right: 12px;
     transform: scale(1.1);
+    accent-color: #007cba;
+    vertical-align: middle;
 }
 
 .pecf-category-item .category-name {
-    font-weight: 500;
-    color: #333;
-    flex: 1;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1.05em;
+    line-height: 1.4;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
 }
 
 .pecf-category-item .category-count {
-    color: #666;
+    color: #6c757d;
     font-size: 0.9em;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    border: 1px solid #90caf9;
+    display: inline-block;
+    vertical-align: middle;
     margin-left: 8px;
-    background: #f0f0f0;
-    padding: 2px 6px;
-    border-radius: 3px;
 }
 
 .pecf-category-item .category-description {
-    display: block;
-    color: #666;
+    color: #6c757d;
     font-size: 0.85em;
-    margin-top: 2px;
     font-style: italic;
+    margin-top: 6px;
+    margin-left: 24px;
+    line-height: 1.4;
+    background: #f8f9fa;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border-left: 3px solid #007cba;
+    display: block;
 }
 
 .pecf-info {
@@ -218,21 +394,69 @@ if ( ! defined( 'ABSPATH' ) ) {
     border-top: 1px solid #ddd;
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
-    .pecf-categories-list {
-        max-height: 300px;
-    }
-    .pecf-category-item {
+    .pecf-bulk-actions {
         flex-direction: column;
-        align-items: flex-start;
-        padding: 10px 0;
+        gap: 10px;
     }
-    .pecf-category-item input[type="checkbox"] {
-        margin-bottom: 5px;
+    
+    .pecf-bulk-actions button {
+        margin-right: 0;
+        margin-bottom: 8px;
     }
-    .pecf-category-item .category-count {
+    
+    .pecf-selection-count {
         margin-left: 0;
-        margin-top: 5px;
+        text-align: center;
+    }
+    
+    .pecf-categories-list {
+        max-height: 350px;
+        padding: 15px;
+    }
+    
+    .pecf-category-item {
+        padding: 12px 8px;
+    }
+    
+    .pecf-category-item:hover {
+        transform: none;
+    }
+    
+    .pecf-search-box input {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .pecf-settings-page {
+        margin: 0 10px;
+    }
+    
+    .pecf-category-item {
+        padding: 10px 8px;
+    }
+    
+    .pecf-category-item input[type="checkbox"] {
+        margin-right: 8px;
+    }
+    
+    .pecf-category-item .category-name {
+        font-size: 1em;
+        margin-right: 6px;
+    }
+    
+    .pecf-category-item .category-count {
+        font-size: 0.8em;
+        padding: 2px 6px;
+        margin-left: 6px;
+    }
+    
+    .pecf-category-item .category-description {
+        margin-left: 20px;
+        font-size: 0.8em;
+        padding: 4px 8px;
     }
 }
 
