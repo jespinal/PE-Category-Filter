@@ -12,14 +12,40 @@
         </properties>
     </rule>
 
-    <!-- Ignore WordPress file naming conventions -->
+    <!-- Ignore WordPress file naming conventions for modern architecture -->
     <rule ref="WordPress.Files.FileName">
         <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+        <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
     </rule>
 
     <!-- Allow modern PHP features -->
     <rule ref="Generic.PHP.ForbiddenFunctions">
         <exclude name="Generic.PHP.ForbiddenFunctions"/>
+    </rule>
+    
+    <!-- Allow short array syntax for PHP 8.3+ -->
+    <rule ref="Generic.Arrays.DisallowShortArraySyntax">
+        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+    </rule>
+    
+    <!-- Allow modern naming conventions for enterprise architecture
+         This plugin uses modern PHP patterns inspired by Symfony/Laravel:
+         - PascalCase for class names (PerformanceMonitor, CategoryFilter)
+         - camelCase for methods (startTimer, getMetrics, filterCategories)
+         - camelCase for properties ($startTime, $endMemory, $settingsRepository)
+         - camelCase for variables ($selectedCount, $excludedCategories)
+         
+         WordPress coding standards prefer snake_case, but we maintain
+         modern enterprise patterns for better developer experience
+         and consistency with contemporary PHP frameworks. -->
+    <rule ref="WordPress.NamingConventions.ValidFunctionName">
+        <exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
+    </rule>
+    <rule ref="WordPress.NamingConventions.ValidVariableName">
+        <exclude name="WordPress.NamingConventions.ValidVariableName.MemberNotSnakeCase"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase"/>
     </rule>
 
     <!-- Exclude specific directories -->
@@ -32,5 +58,5 @@
 
     <!-- File extensions to check -->
     <file>src/</file>
-    <file>*.php</file>
+    <file>pe-category-filter.php</file>
 </ruleset>

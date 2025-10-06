@@ -15,11 +15,30 @@ SKIP_DB_CREATE=${6-false}
 WP_TESTS_DIR=${WP_TESTS_DIR-/tmp/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-/tmp/wordpress/}
 
+# Cleanup function for temp files
+cleanup() {
+    echo "Cleaning up temporary files..."
+    rm -f /tmp/wordpress.zip /tmp/wordpress-nightly.zip /tmp/wp-latest.json
+    rm -rf /tmp/wordpress /tmp/wordpress-extract
+}
+
+# Set up cleanup trap
+trap cleanup EXIT
+
 download() {
-    if [ `which curl` ]; then
+    if command -v curl >/dev/null 2>&1; then
         curl -s "$1" > "$2";
-    elif [ `which wget` ]; then
+    elif command -v wget >/dev/null 2>&1; then
         wget -nv -O "$2" "$1"
+    else
+        echo "Error: Neither curl nor wget is available"
+        exit 1
+    fi
+    
+    # Check if download was successful
+    if [[ ! -f "$2" ]] || [[ ! -s "$2" ]]; then
+        echo "Error: Failed to download $1"
+        exit 1
     fi
 }
 
@@ -28,11 +47,10 @@ if [[ $WP_VERSION =~ ^[0-9]+\.[0-9]+$ ]]; then
 elif [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' ]]; then
 	WP_TESTS_TAG="trunk"
 else
-	# http serves a single offer, whereas https serves multiple. we only want one
-	download http://api.wordpress.org/core/version-check/1.7/ /tmp/wp-latest.json
-	grep '[0-9]+\.[0-9]+(\.[0-9]+)?' /tmp/wp-latest.json
-	LATEST_VERSION=$(grep -o '"version":"[^"]*' /tmp/wp-latest.json | sed 's/"version":"//')
-	if [[ -z "$LATEST_VERSION" ]]; then
+	# Get latest version from WordPress API
+	download https://api.wordpress.org/core/version-check/1.7/ /tmp/wp-latest.json
+	LATEST_VERSION=$(jq -r '.offers[0].version' /tmp/wp-latest.json)
+	if [[ -z "$LATEST_VERSION" || "$LATEST_VERSION" == "null" ]]; then
 		echo "Latest WordPress version could not be found"
 		exit 1
 	fi
@@ -42,40 +60,79 @@ fi
 set -ex
 
 install_wp() {
-	if [ -d $WP_CORE_DIR ]; then
+	if [ -d "$WP_CORE_DIR" ]; then
+		echo "WordPress core already installed at $WP_CORE_DIR"
 		return;
 	fi
 
-	mkdir -p $WP_CORE_DIR
+	echo "Installing WordPress core to $WP_CORE_DIR..."
+	mkdir -p "$WP_CORE_DIR"
 
 	if [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' ]]; then
-		mkdir -p $WP_CORE_DIR
 		download https://wordpress.org/nightly-builds/wordpress-latest.zip  /tmp/wordpress-nightly.zip
-		unzip -q /tmp/wordpress-nightly.zip -d /tmp/
-		mv /tmp/wordpress/* $WP_CORE_DIR
+		unzip -q /tmp/wordpress-nightly.zip -d /tmp/wordpress-extract/
+		mv /tmp/wordpress-extract/wordpress/* "$WP_CORE_DIR"
 	else
 		if [ $WP_VERSION == 'latest' ]; then
-			local ARCHIVE_NAME='latest'
-		elif [[ $WP_VERSION =~ [0-9]+\.[0-9]+ ]]; then
-			# https serves multiple offers, whereas http serves single.
+			# Get the actual latest version from API
+			echo "Fetching latest WordPress version..."
 			download https://api.wordpress.org/core/version-check/1.7/ /tmp/wp-latest.json
-			if [[ $WP_VERSION =~ [0-9]+\.[0-9]+\.[0] ]]; then
-				# version x.x.0 means the first release of the major version, so strip off the .0 and download version x.x
-				LATEST_VERSION=${WP_VERSION%??}
-			else
-				# otherwise, download the offering of the same version
-				LATEST_VERSION=$WP_VERSION
+			LATEST_VERSION=$(jq -r '.offers[0].version' /tmp/wp-latest.json)
+			if [[ -z "$LATEST_VERSION" || "$LATEST_VERSION" == "null" ]]; then
+				echo "Latest WordPress version could not be found"
+				exit 1
+			fi
+			echo "Latest WordPress version: $LATEST_VERSION"
+			ARCHIVE_NAME="wordpress-$LATEST_VERSION"
+		elif [[ $WP_VERSION == "6" ]]; then
+			# Handle specific major versions
+			LATEST_VERSION="6.0.11"
+			ARCHIVE_NAME="wordpress-$LATEST_VERSION"
+		elif [[ $WP_VERSION == "6.4" ]]; then
+			LATEST_VERSION="6.4.7"
+			ARCHIVE_NAME="wordpress-$LATEST_VERSION"
+		elif [[ $WP_VERSION == "5.9" ]]; then
+			LATEST_VERSION="5.9.21"
+			ARCHIVE_NAME="wordpress-$LATEST_VERSION"
+		elif [[ $WP_VERSION == "5.8" ]]; then
+			LATEST_VERSION="5.8.8"
+			ARCHIVE_NAME="wordpress-$LATEST_VERSION"
+		elif [[ $WP_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
+			# Full version already provided (x.x.x)
+			ARCHIVE_NAME="wordpress-$WP_VERSION"
+		elif [[ $WP_VERSION =~ [0-9]+\.[0-9]+ ]]; then
+			# For other x.x versions, try to find the latest patch
+			download https://api.wordpress.org/core/version-check/1.7/ /tmp/wp-latest.json
+			LATEST_VERSION=$(jq -r ".offers[] | select(.version | startswith(\"$WP_VERSION.\")) | .version" /tmp/wp-latest.json | head -1)
+			if [[ -z "$LATEST_VERSION" || "$LATEST_VERSION" == "null" ]]; then
+				echo "No patch version found for WordPress $WP_VERSION"
+				exit 1
 			fi
 			ARCHIVE_NAME="wordpress-$LATEST_VERSION"
 		else
 			ARCHIVE_NAME="wordpress-$WP_VERSION"
 		fi
 
-		download https://wordpress.org/${ARCHIVE_NAME}.tar.gz  /tmp/wordpress.tar.gz
-		tar --strip-components=1 -zxmf /tmp/wordpress.tar.gz -C $WP_CORE_DIR
+		echo "Downloading WordPress ${ARCHIVE_NAME}..."
+		download https://downloads.wordpress.org/release/${ARCHIVE_NAME}.zip  /tmp/wordpress.zip
+		if [[ ! -f /tmp/wordpress.zip ]]; then
+			echo "Error: Failed to download WordPress archive"
+			exit 1
+		fi
+		echo "Extracting WordPress archive..."
+		unzip -q /tmp/wordpress.zip -d /tmp/wordpress-extract/
+		if [[ $? -ne 0 ]]; then
+			echo "Error: Failed to extract WordPress archive"
+			exit 1
+		fi
+		# Move contents from extracted directory to target directory
+		mv /tmp/wordpress-extract/wordpress/* "$WP_CORE_DIR"
+		echo "WordPress installation completed successfully"
 	fi
 
-	download https://raw.github.com/markoheijnen/wp-mysqli/master/db.php $WP_CORE_DIR/wp-content/db.php
+	# Remove trailing slash from WP_CORE_DIR to avoid double slashes
+	WP_CORE_DIR_CLEAN=$(echo "$WP_CORE_DIR" | sed 's:/*$::')
+	download https://raw.githubusercontent.com/markoheijnen/wp-mysqli/master/db.php "$WP_CORE_DIR_CLEAN/wp-content/db.php"
 }
 
 install_test_suite() {

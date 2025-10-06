@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    name: "PHP ${{ matrix.php-version }} + WordPress ${{ matrix.wordpress-version }}"
     
     strategy:
       matrix:
@@ -16,27 +17,34 @@ jobs:
         wordpress-version: [6.0, 6.4, latest]
     
     steps:
-    - uses: actions/checkout@v4
+    - name: "📥 Checkout Code"
+      uses: actions/checkout@v4
     
-    - name: Setup PHP
+    - name: "🐘 Setup PHP ${{ matrix.php-version }}"
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-version }}
         extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, dom, filter, gd, json, mbstring, pcre, reflection, session, simplexml, spl, standard, tokenizer, xml, xmlreader, xmlwriter, zip, zlib
         coverage: xdebug
     
-    - name: Setup WordPress
-      run: |
-        bash tests/bin/install-wp-tests.sh wordpress_test root '' localhost ${{ matrix.wordpress-version }}
+    - name: "📦 Install System Dependencies"
+      run: sudo apt-get update && sudo apt-get install -y subversion jq
     
-    - name: Install dependencies
+    - name: "🔧 Setup WordPress ${{ matrix.wordpress-version }}"
+      run: |
+        bash tests/bin/install-wp-tests.sh wordpress_test root '' localhost ${{ matrix.wordpress-version }} true
+      env:
+        WP_TESTS_DIR: /tmp/wordpress-tests-lib
+        WP_CORE_DIR: /tmp/wordpress
+    
+    - name: "📚 Install Composer Dependencies"
       run: composer install --prefer-dist --no-progress
     
-    - name: Run PHPCS
+    - name: "🔍 Code Style Check (PHPCS)"
       run: composer run phpcs
     
-    - name: Run PHPStan
+    - name: "🔬 Static Analysis (PHPStan)"
       run: composer run phpstan
     
-    - name: Run tests
+    - name: "🧪 Run Test Suite"
       run: composer run test

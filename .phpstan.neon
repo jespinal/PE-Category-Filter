@@ -1,10 +1,11 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
 parameters:
     level: 8
     paths:
         - src
-    ignoreErrors:
-        - '#Call to an undefined method WP_Query::set\(\)#'
+    bootstrapFiles:
+        - phpstan-bootstrap.php
     excludePaths:
         - tests
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
