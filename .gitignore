@@ -1,0 +1,50 @@
+# Dependencies
+vendor/
+node_modules/
+
+# Build artifacts
+build/
+dist/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Cache
+cache/
+*.cache
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# WordPress specific
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+
+# Documentation (as requested)
+docs/
+
+# Test files
+.phpunit.cache/
+test-results/
+
+# Temporary files
+tmp/
+.phpactor.json

@@ -1,25 +1,70 @@
 {
   "name": "pavel_espinal/pe-category-filter",
-  "description": "This plugin allows you to exclude posts that belong to certain categories from your home page.",
+  "description": "Modern WordPress plugin for filtering categories from home page with enterprise-grade architecture, performance optimization, and security enhancements.",
   "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "keywords": ["wordpress", "plugin", "category", "filter", "modern", "performance", "security", "pe-category-filter"],
+  "homepage": "https://pavelespinal.com/wordpress-plugins-pe-category-filter/",
+  "support": {
+    "issues": "https://github.com/jespinal/PE-Category-Filter/issues",
+    "source": "https://github.com/jespinal/PE-Category-Filter"
+  },
   "authors": [
     {
       "name": "Pavel Espinal",
-      "email": "jose@pavelespinal.com"
+      "email": "jose@pavelespinal.com",
+      "homepage": "https://pavelespinal.com/about-me/"
     }
   ],
   "require": {
-    "composer/installers": "^1.0"
+    "php": ">=8.3",
+    "composer/installers": "^2.0"
   },
-  "require-dev": {
-    "squizlabs/php_codesniffer": "^3.2"
+    "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "phpstan/phpstan": "^1.10",
+    "phpstan/phpstan-strict-rules": "^1.5",
+    "phpunit/phpunit": "^10.0",
+    "squizlabs/php_codesniffer": "^3.8",
+    "szepeviktor/phpstan-wordpress": "^1.3",
+    "wp-coding-standards/wpcs": "^3.0",
+    "yoast/phpunit-polyfills": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "PavelEspinal\\WpPlugins\\PECategoryFilter\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PavelEspinal\\WpPlugins\\PECategoryFilter\\Tests\\": "tests/"
+    }
   },
   "scripts": {
-    "cs": [
-      "./vendor/bin/phpcs"
+    "test": "phpunit",
+    "test:coverage": "phpunit --coverage-html coverage",
+    "phpcs": "phpcs --standard=phpcs.xml",
+    "phpcbf": "phpcbf --standard=phpcs.xml",
+    "phpstan": "phpstan analyse",
+    "quality": [
+      "@phpcs",
+      "@phpstan"
     ],
-    "check-code-quality": [
-      "@cs"
+    "fix": [
+      "@phpcbf"
+    ],
+    "check-all": [
+      "@quality",
+      "@test"
     ]
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "sort-packages": true,
+    "optimize-autoloader": true
   }
 }

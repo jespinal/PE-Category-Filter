@@ -1,33 +1,62 @@
 <?xml version="1.0"?>
-<ruleset name="WordPress Components Standard" namespace="PavelEspinal\WP\Standard">
-    <!-- @see https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-Ruleset -->
+<ruleset name="PE Category Filter">
+    <description>WordPress coding standards for PE Category Filter plugin</description>
 
-    <description>
-        Custom WordPress Component coding standard.
-    </description>
+    <!-- Include WordPress coding standards -->
+    <rule ref="WordPress"/>
 
-    <arg name="colors"/>
-    <arg value="sp"/>
-
-    <rule ref="PSR2"/>
-
-    <!-- Specifically turn ON checking for extra whitespace in empty lines -->
-    <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
+    <!-- Ignore WordPress naming conventions for modern architecture -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
         <properties>
-            <property name="ignoreBlankLines" value="false"/>
+            <property name="prefixes" value="PECF,pe_category_filter,pecf"/>
         </properties>
     </rule>
-    <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/>
-    <rule ref="Generic.Files.LineLength">
-        <exclude name="Generic.Files.LineLength.TooLong"/>
-	</rule>
 
-    <!-- Ensure JS files aren't picked up -->
-    <exclude-pattern>*.js</exclude-pattern>
+    <!-- Ignore WordPress file naming conventions for modern architecture -->
+    <rule ref="WordPress.Files.FileName">
+        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+        <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+    </rule>
 
-    <!-- Ensure the vendor directory is ignored -->
-    <exclude-pattern>vendor*</exclude-pattern>
+    <!-- Allow modern PHP features -->
+    <rule ref="Generic.PHP.ForbiddenFunctions">
+        <exclude name="Generic.PHP.ForbiddenFunctions"/>
+    </rule>
+    
+    <!-- Allow short array syntax for PHP 8.3+ -->
+    <rule ref="Generic.Arrays.DisallowShortArraySyntax">
+        <exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+    </rule>
+    
+    <!-- Allow modern naming conventions for enterprise architecture
+         This plugin uses modern PHP patterns inspired by Symfony/Laravel:
+         - PascalCase for class names (PerformanceMonitor, CategoryFilter)
+         - camelCase for methods (startTimer, getMetrics, filterCategories)
+         - camelCase for properties ($startTime, $endMemory, $settingsRepository)
+         - camelCase for variables ($selectedCount, $excludedCategories)
+         
+         WordPress coding standards prefer snake_case, but we maintain
+         modern enterprise patterns for better developer experience
+         and consistency with contemporary PHP frameworks. -->
+    <rule ref="WordPress.NamingConventions.ValidFunctionName">
+        <exclude name="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid"/>
+    </rule>
+    <rule ref="WordPress.NamingConventions.ValidVariableName">
+        <exclude name="WordPress.NamingConventions.ValidVariableName.MemberNotSnakeCase"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase"/>
+    </rule>
 
-    <!-- Folders to test -->
-    <file>./</file>
+    <!-- Exclude specific directories -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/tests/*</exclude-pattern>
+    <exclude-pattern>*/docs/*</exclude-pattern>
+    <exclude-pattern>*/build/*</exclude-pattern>
+    <exclude-pattern>*/dist/*</exclude-pattern>
+
+    <!-- File extensions to check -->
+    <file>src/</file>
+    <file>pe-category-filter.php</file>
 </ruleset>
