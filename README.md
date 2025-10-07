@@ -12,8 +12,7 @@
 - **Performance Optimization:** Intelligent caching with 80% reduction in database queries
 - **Security Enhancements:** CSRF protection, input validation, and output escaping
 - **Accessibility:** Screen reader support and keyboard navigation
-- **Testing:** Comprehensive test suite with 51 tests covering all functionality
-- **Documentation:** Complete user and developer guides with troubleshooting support
+- **Testing:** Comprehensive automated test suite (unit and integration tests) covering core functionality.
 
 ## 📋 **Requirements**
 
@@ -66,35 +65,97 @@ This plugin uses modern PHP patterns inspired by Symfony:
 - PHP 8.3+
 - MySQL 5.7+
 - Composer
-- Node.js (for asset building)
 
 ### **Setup**
 ```bash
 git clone https://github.com/jespinal/PE-Category-Filter.git
 cd PE-Category-Filter
 composer install
-npm install
-npm run build
 ```
 
-### **Testing**
+### **Testing (local)
+**
+
+The project includes both unit and integration tests. Integration tests use the WordPress PHPUnit test suite and require a local WordPress test environment (database + test suite).
+
+Prerequisites
+- PHP 8.3+, Composer, and a local MySQL instance
+
+Quick steps (example)
+
+1. Install dependencies (if not already):
+
 ```bash
-composer test              # Run all tests
-composer test:coverage     # Generate coverage report
-composer quality          # Run code quality checks
-composer check-all        # Run all checks
+composer install
 ```
+
+2. Install the WordPress test suite and create a test database. The repository includes helper scripts in `tests/bin/`:
+
+- Use the interactive/local script when developing with an existing WP install:
+
+```bash
+./tests/bin/install-wp-tests-local.sh
+# (This script is intended for local setups and will prompt or use the hardcoded values in the script.)
+```
+
+- Or run the general installer that downloads the WP test suite, configures `WP_TESTS_DIR` and creates the DB:
+
+```bash
+./tests/bin/install-wp-tests.sh <db-name> <db-user> <db-pass> [db-host] [wp-version]
+# Example:
+./tests/bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 latest
+```
+
+Both installers populate the test bootstrap (the project uses `tests/bootstrap.php`) and set up the WordPress test framework (default paths: `WP_TESTS_DIR=/tmp/wordpress-tests-lib`, `WP_CORE_DIR=/tmp/wordpress/`).
+
+3. Run the tests:
+
+```bash
+composer test          # runs phpunit
+composer test:coverage # generate coverage HTML in ./coverage
+```
+
+Or run the binary directly:
+
+```bash
+vendor/bin/phpunit --testdox
+```
+
+Notes & troubleshooting
+- The integration tests require a functioning WordPress test suite and a MySQL user that can create the test database.
+- If tests output nothing or fail to bootstrap, check `tests/bootstrap.php` and ensure the `WP_TESTS_DIR` and `WP_CORE_DIR` paths are correct and accessible.
+- For CI, you can run the `tests/bin/install-wp-tests.sh` script in your runner, or use established WordPress testing Actions that prepare the test environment.
+
+### Running tests & generating coverage (note)
+
+If you want to generate code coverage reports, a coverage driver must be available to PHPUnit. That means one of the following must be available for the CLI PHP:
+
+- Xdebug (recommended for local dev) — enable it and set `XDEBUG_MODE=coverage` when running PHPUnit, or enable `xdebug.mode=coverage` in your `php.ini` for CLI.
+- phpdbg (shipped with PHP) — run PHPUnit through phpdbg (example below).
+- PCOV — an alternative coverage extension.
+
+Examples:
+
+```bash
+# With Xdebug enabled (preferred)
+XDEBUG_MODE=coverage composer run test:coverage
+
+# Or explicitly with phpdbg (if available and built for your PHP):
+/usr/bin/phpdbg -qrr ./vendor/bin/phpunit --configuration phpunit.xml --coverage-html coverage
+```
+
+Common gotchas:
+
+- If PHPUnit prints "No code coverage driver available" then either Xdebug/PCOV is not installed/enabled for CLI or phpdbg is not the correct binary for your PHP.
+- If Xdebug is installed but you still see a warning, ensure `XDEBUG_MODE=coverage` is set or `xdebug.mode=coverage` is enabled for the CLI SAPI.
+- Coverage generation can be slower; use it for local analysis or CI but avoid running it for every quick dev test.
 
 ### **Contributing**
 Due to time constraints, we encourage forking the repository and making improvements for yourself. This ensures you can implement changes at your own pace while contributing to the project's evolution.
 
 ## 📚 **Documentation**
 
-- **[Installation Guide](docs/user-guide/installation.md)** - Complete setup instructions
-- **[Configuration Guide](docs/user-guide/configuration.md)** - Plugin configuration
-- **[FAQ](docs/user-guide/faq.md)** - Frequently asked questions
-- **[Troubleshooting](docs/user-guide/troubleshooting.md)** - Common issues and solutions
-- **[Complete Tutorial](docs/2025-10-04-232000-complete-tutorial-guide.md)** - Full modernization journey
+Documentation is planned; for now please consult the codebase and inline comments for guidance.
 
 ## 🌐 **Live Examples**
 
@@ -110,15 +171,6 @@ This plugin is actively used on:
 
 Originally developed in **2012**, this plugin has been maintained for over 13 years, serving the WordPress community with a simple yet powerful solution for category filtering. The v2.0.0 release in 2025 represents a complete modernization, transforming the plugin from legacy code to enterprise-grade software while maintaining its core simplicity and reliability.
 
-## 🔧 **Technical Details**
-
-- **Modern PHP 8.3+ Features:** Type hints, namespaces, and modern syntax
-- **WordPress Standards:** Full compliance with WordPress coding standards
-- **Performance:** Intelligent caching reduces database queries by 80%
-- **Security:** CSRF protection, input validation, and output escaping
-- **Accessibility:** Screen reader support and keyboard navigation
-- **Testing:** 51 comprehensive tests with real WordPress environment
-
 ## 📄 **License**
 
 This plugin is licensed under the GPL v2 or later.
@@ -127,4 +179,3 @@ This plugin is licensed under the GPL v2 or later.
 
 - **WordPress.org:** [Plugin Support Forum](https://wordpress.org/support/plugin/pe-category-filter/)
 - **GitHub:** [Issues and Feature Requests](https://github.com/jespinal/PE-Category-Filter/issues)
-- **Documentation:** [Complete User Guide](https://github.com/jespinal/PE-Category-Filter/blob/master/docs/user-guide/)

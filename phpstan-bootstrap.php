@@ -19,11 +19,14 @@ if (!defined('PE_CATEGORY_FILTER_PLUGIN_FILE')) {
 }
 
 if (!defined('PE_CATEGORY_FILTER_PLUGIN_DIR')) {
-    define('PE_CATEGORY_FILTER_PLUGIN_DIR', plugin_dir_path(__FILE__));
+    // Avoid calling plugin_dir_path() which requires WordPress functions.
+    // Use the directory of this bootstrap file so PHPStan can run without WP.
+    define('PE_CATEGORY_FILTER_PLUGIN_DIR', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 }
 
 if (!defined('PE_CATEGORY_FILTER_PLUGIN_URL')) {
-    define('PE_CATEGORY_FILTER_PLUGIN_URL', plugin_dir_url(__FILE__));
+    // Provide a simple placeholder URL for static analysis purposes.
+    define('PE_CATEGORY_FILTER_PLUGIN_URL', 'https://example.org/pe-category-filter/');
 }
 
 // WordPress constants that might be needed

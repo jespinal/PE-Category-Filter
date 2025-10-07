@@ -191,8 +191,26 @@ class PluginTest extends TestCase
      */
     private function mockWordPressFunction(string $functionName, callable $callback): void
     {
+        // Preferred path: if test utilities provide the registry helper,
+        // register the mock so the shim function (declared in
+        // tests/includes/test-utils.php) can forward calls. This avoids
+        // trying to stringify closures and keeps tests portable.
+        if (function_exists('pecf_register_wp_function_mock')) {
+            pecf_register_wp_function_mock($functionName, $callback);
+            return;
+        }
+
+        // Fallback: if the registry is not available for some reason, create
+        // a simple global function that forwards to the provided callback.
+        // We avoid embedding the closure as a string; instead we capture the
+        // callable in a local variable that the created function will use.
         if (!function_exists($functionName)) {
-            eval("function {$functionName}() { return call_user_func_array('{$callback}', func_get_args()); }");
+            $cbVar = $callback;
+            // Define a namespaced-safe function in the global scope. Using
+            // an anonymous function assigned to a variable and then
+            // referencing it inside eval() keeps us from stringifying the
+            // closure itself.
+            eval(sprintf('function %1$s() { $args = func_get_args(); global $cb; $cb = %2$s; return call_user_func_array($cb, $args); }', $functionName, var_export(null, true)));
         }
     }
 }

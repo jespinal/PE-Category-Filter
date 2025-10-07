@@ -180,4 +180,81 @@ class WordPressIntegration {
 			dirname( plugin_basename( PE_CATEGORY_FILTER_PLUGIN_FILE ) ) . '/languages'
 		);
 	}
+
+	/**
+	 * Admin init handler used by tests. Exposed publicly so integration
+	 * tests can call it directly. Keep minimal — the SettingsPage handles
+	 * the heavy lifting.
+	 *
+	 * @return void
+	 */
+	public function onAdminInit(): void {
+		// Delegate to SettingsPage registerSettings.
+		$settingsPage = $this->container->make( SettingsPage::class );
+		$settingsPage->registerSettings();
+	}
+
+	/**
+	 * Sanitize excluded categories input. Tests call this directly to
+	 * verify sanitization behavior.
+	 *
+	 * @param mixed $input Raw input to sanitize.
+	 * @return array<int> Sanitized array of IDs.
+	 */
+	public function sanitizeExcludedCategories( $input ): array {
+		if ( ! is_array( $input ) ) {
+			return array();
+		}
+
+		$sanitized = array_map( 'absint', $input );
+		$sanitized = array_filter( $sanitized, fn( $id ) => $id > 0 );
+		return array_values( array_unique( $sanitized ) );
+	}
+
+	/**
+	 * Add action links to the plugin row. Minimal implementation used in
+	 * tests to verify the link output contains expected substrings.
+	 *
+	 * @param string[] $existing Existing row links.
+	 * @return string[] Modified list.
+	 */
+	public function addActionLinks( array $existing ): array {
+		$settingsUrl  = admin_url( 'options-general.php?page=pecf-settings' );
+		$settingsHtml = '<a href="' . esc_url( $settingsUrl ) . '">Settings</a>';
+		array_unshift( $existing, $settingsHtml );
+		return $existing;
+	}
+
+	/**
+	 * Add plugin row meta links (GitHub/Author).
+	 *
+	 * Purpose: Provide the small set of row-meta links shown under the
+	 * plugin on the Plugins screen (for example GitHub and Author links).
+	 *
+	 * Contract:
+	 * - Inputs: $existing (array) of existing row-meta links, $pluginFile
+	 *   plugin basename for the current plugin row.
+	 * - Behavior: If $pluginFile matches this plugin's basename we append
+	 *   GitHub and Author links and return the array. Otherwise, return
+	 *   $existing unchanged.
+	 *
+	 * Notes:
+	 * - This method is intentionally minimal to make tests deterministic.
+	 * - Links are static; if links become dynamic in future they should be
+	 *   escaped and/or translated where appropriate.
+	 *
+	 * @param string[] $existing   Existing row-meta links.
+	 * @param string   $pluginFile Plugin basename provided by WordPress.
+	 * @return string[] Modified row-meta links.
+	 */
+	public function addPluginRowMeta( array $existing, string $pluginFile ): array {
+		// Only add our links for the plugin file that matches this plugin.
+		if ( plugin_basename( PE_CATEGORY_FILTER_PLUGIN_FILE ) !== $pluginFile ) {
+			return $existing;
+		}
+
+		$existing[] = '<a href="https://github.com/jespinal/PE-Category-Filter">GitHub</a>';
+		$existing[] = '<a href="https://pavelespinal.com/">Author</a>';
+		return $existing;
+	}
 }

@@ -9,6 +9,18 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 3306:3306
     name: "PHP ${{ matrix.php-version }} + WordPress ${{ matrix.wordpress-version }}"
     
     strategy:
@@ -28,23 +40,49 @@ jobs:
         coverage: xdebug
     
     - name: "📦 Install System Dependencies"
-      run: sudo apt-get update && sudo apt-get install -y subversion jq
-    
-    - name: "🔧 Setup WordPress ${{ matrix.wordpress-version }}"
       run: |
-        bash tests/bin/install-wp-tests.sh wordpress_test root '' localhost ${{ matrix.wordpress-version }} true
-      env:
-        WP_TESTS_DIR: /tmp/wordpress-tests-lib
-        WP_CORE_DIR: /tmp/wordpress
-    
+        sudo apt-get update
+        sudo apt-get install -y subversion jq curl unzip mysql-client
+
+    - name: "🔒 Cache Composer"
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}-php-${{ matrix.php-version }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
     - name: "📚 Install Composer Dependencies"
       run: composer install --prefer-dist --no-progress
-    
-    - name: "🔍 Code Style Check (PHPCS)"
+
+    - name: "� Code Style Check (PHPCS)"
       run: composer run phpcs
-    
+
     - name: "🔬 Static Analysis (PHPStan)"
       run: composer run phpstan
-    
+
+    - name: "�🔧 Setup WordPress ${{ matrix.wordpress-version }}"
+      env:
+        GITHUB_MATRIX_PHP_VERSION: ${{ matrix.php-version }}
+        GITHUB_MATRIX_WORDPRESS_VERSION: ${{ matrix.wordpress-version }}
+        WP_TESTS_DIR: /tmp/wordpress-tests-lib
+        WP_CORE_DIR: /tmp/wordpress
+      run: |
+        set -x
+        # Wait for MySQL service to be ready (connect via localhost port mapping)
+        for i in {1..30}; do
+          mysqladmin ping -h "127.0.0.1" -uroot -ppassword >/dev/null 2>&1 && break || sleep 1
+        done
+        # Compute a unique DB name per matrix job to avoid collisions
+        RAW_DB_NAME="wordpress_test_${GITHUB_MATRIX_PHP_VERSION}_${GITHUB_MATRIX_WORDPRESS_VERSION}"
+        DB_NAME=$(echo "$RAW_DB_NAME" | tr '.' '_' | tr -c '[:alnum:]_' '_')
+        echo "Using DB name: $DB_NAME"
+        # Run installer; let it create the test DB using root credentials and localhost (127.0.0.1)
+        bash tests/bin/install-wp-tests.sh "$DB_NAME" root 'password' 127.0.0.1 $GITHUB_MATRIX_WORDPRESS_VERSION false
+        echo "--- Post-install diagnostics ---"
+        echo "WP core dir listing:"; ls -la /tmp/wordpress || true
+        echo "WP tests dir listing:"; ls -la /tmp/wordpress-tests-lib || true
+        if [ -f /tmp/wordpress/wp-settings.php ]; then echo "wp-settings.php exists"; else echo "wp-settings.php MISSING"; fi
+
     - name: "🧪 Run Test Suite"
       run: composer run test

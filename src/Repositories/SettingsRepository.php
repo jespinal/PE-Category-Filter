@@ -69,12 +69,28 @@ class SettingsRepository implements SettingsRepositoryInterface {
 
 		$result = update_option( self::EXCLUDED_CATEGORIES_OPTION, $sanitized );
 
+		// Some WP implementations return false from update_option when the
+		// value didn't change (or for other benign reasons). To make this
+		// method resilient in both the lightweight test-shim environment and
+		// the full WP test suite, consider the operation successful if the
+		// option now contains the expected sanitized value.
+		if ( false === $result ) {
+			$stored = get_option( self::EXCLUDED_CATEGORIES_OPTION, null );
+			if ( is_array( $stored ) ) {
+				$stored = array_map( 'absint', $stored );
+				$stored = array_values( array_unique( array_filter( $stored, fn( $id ) => $id > 0 ) ) );
+				if ( $stored === $sanitized ) {
+					$result = true;
+				}
+			}
+		}
+
 		if ( $result ) {
 			// Clear cache.
 			wp_cache_delete( 'pecf_excluded_categories', self::CACHE_GROUP );
 		}
 
-		return $result;
+		return (bool) $result;
 	}
 
 	/**
@@ -87,9 +103,20 @@ class SettingsRepository implements SettingsRepositoryInterface {
 		$settings  = wp_cache_get( $cache_key, self::CACHE_GROUP );
 
 		if ( false === $settings ) {
-			$settings = array(
-				'excluded_categories' => $this->getExcludedCategories(),
-			);
+			// If a stored settings array exists in the options table, prefer
+			// that. This mirrors the behavior tests expect when the
+			// `pecf_settings` option is set.
+			$stored = get_option( 'pecf_settings', false );
+
+			if ( false !== $stored && is_array( $stored ) ) {
+				$settings = $stored;
+			} else {
+				// No stored settings array — build a settings array that includes
+				// the default metadata as well as current excluded categories.
+				$defaults                        = $this->getDefaultSettings();
+				$defaults['excluded_categories'] = $this->getExcludedCategories();
+				$settings                        = $defaults;
+			}
 
 			wp_cache_set( $cache_key, $settings, self::CACHE_GROUP, self::CACHE_EXPIRATION );
 		}
@@ -98,22 +125,68 @@ class SettingsRepository implements SettingsRepositoryInterface {
 	}
 
 	/**
-	 * Update a specific setting
+	 * Get default settings for the plugin.
 	 *
-	 * @param string $key Setting key.
+	 * @return array<string, mixed>
+	 */
+	public function getDefaultSettings(): array {
+		return array(
+			'excluded_categories' => array(),
+			'version'             => '2.0.0',
+			'last_updated'        => gmdate( 'Y-m-d H:i:s' ),
+		);
+	}
+
+	/**
+	 * Get a single setting value with an optional fallback.
+	 *
+	 * @param string $key      Setting key to retrieve.
+	 * @param mixed  $fallback Fallback value to return if key is not set.
+	 * @return mixed
+	 */
+	public function getSetting( string $key, mixed $fallback = null ): mixed {
+		$settings = get_option( 'pecf_settings', false );
+		if ( false === $settings || ! is_array( $settings ) ) {
+			$defaults = $this->getDefaultSettings();
+			return $defaults[ $key ] ?? $fallback;
+		}
+
+		return $settings[ $key ] ?? $fallback;
+	}
+
+	/**
+	 * Update a specific setting.
+	 *
+	 * @param string $key   Setting key.
 	 * @param mixed  $value Setting value.
-	 * @return bool True on success, false on failure
+	 * @return bool True on success, false on failure.
 	 */
 	public function updateSetting( string $key, mixed $value ): bool {
-		switch ( $key ) {
-			case 'excluded_categories':
-				if ( ! is_array( $value ) ) {
-					return false;
-				}
-				return $this->setExcludedCategories( $value );
-
-			default:
-				return false;
+		// Load existing settings array (or defaults) and update key.
+		$settings = get_option( 'pecf_settings', false );
+		if ( false === $settings || ! is_array( $settings ) ) {
+			$settings = $this->getDefaultSettings();
 		}
+
+		// Special handling for excluded_categories to sanitize.
+		if ( 'excluded_categories' === $key ) {
+			if ( ! is_array( $value ) ) {
+				return false;
+			}
+			$value = array_map( 'absint', $value );
+			$value = array_values( array_unique( array_filter( $value, fn( $id ) => $id > 0 ) ) );
+		}
+
+		$settings[ $key ] = $value;
+
+		$result = update_option( 'pecf_settings', $settings );
+
+		if ( $result ) {
+			// Clear caches so subsequent reads pick up the new values.
+			wp_cache_delete( 'pecf_all_settings', self::CACHE_GROUP );
+			wp_cache_delete( 'pecf_excluded_categories', self::CACHE_GROUP );
+		}
+
+		return (bool) $result;
 	}
 }

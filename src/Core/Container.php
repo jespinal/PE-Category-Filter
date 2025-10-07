@@ -76,7 +76,7 @@ class Container {
 
 		// Check if service is registered.
 		if ( ! isset( $this->services[ $abstract_identifier ] ) ) {
-			throw new InvalidArgumentException( "Service '{$abstract_identifier}' not registered" ); // phpcs:ignore
+			throw new InvalidArgumentException( "Service '{$abstract_identifier}' is not registered in the container." ); // phpcs:ignore
 		}
 
 		$concrete_identifier = $this->services[ $abstract_identifier ];
@@ -94,6 +94,18 @@ class Container {
 		}
 
 		return $instance;
+	}
+
+	/**
+	 * Clear resolved instances from the container.
+	 *
+	 * Calling clear will remove any cached singleton instances so subsequent
+	 * make() calls will create fresh instances.
+	 *
+	 * @return void
+	 */
+	public function clear(): void {
+		$this->instances = array();
 	}
 
 	/**

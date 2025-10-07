@@ -271,8 +271,22 @@ class SettingsRepositoryTest extends TestCase
      */
     private function mockWordPressFunction(string $functionName, callable $callback): void
     {
-        if (!function_exists($functionName)) {
-            eval("function {$functionName}(\$option, \$default = false) { return call_user_func_array('{$callback}', func_get_args()); }");
+        // Register the mock in the global test registry so shim functions
+        // (defined in tests/includes/test-utils.php) can forward calls.
+        if ( function_exists( 'pecf_register_wp_function_mock' ) ) {
+            // Preferred: register in shared registry
+            pecf_register_wp_function_mock( $functionName, $callback );
+            return;
+        }
+
+        // Fallback: create a forwarding function that looks up the mock from
+        // the global registry at runtime. This avoids attempting to convert
+        // the Closure to a string inside eval().
+        if ( ! function_exists( $functionName ) ) {
+            eval( sprintf(
+                'function %1$s() { $args = func_get_args(); return call_user_func_array( $GLOBALS["__pecf_wp_function_mocks"]["%1$s"] ?? null, $args ); }',
+                $functionName
+            ) );
         }
     }
 }

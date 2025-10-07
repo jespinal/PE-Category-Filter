@@ -43,6 +43,7 @@ docs/
 
 # Test files
 .phpunit.cache/
+.phpunit.cache/*
 test-results/
 
 # Temporary files
