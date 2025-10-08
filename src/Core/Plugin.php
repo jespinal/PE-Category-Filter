@@ -9,6 +9,10 @@
 namespace PavelEspinal\WpPlugins\PECategoryFilter\Core;
 
 use PavelEspinal\WpPlugins\PECategoryFilter\WordPress\WordPressIntegration;
+use PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterface;
+use PavelEspinal\WpPlugins\PECategoryFilter\Filters\CategoryFilter;
+use PavelEspinal\WpPlugins\PECategoryFilter\Admin\SettingsPage;
+use PavelEspinal\WpPlugins\PECategoryFilter\Repositories\SettingsRepository;
 
 /**
  * Main Plugin Class
@@ -64,28 +68,30 @@ class Plugin {
 
 		// Register repositories.
 		$this->container->singleton(
-			\PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterface::class,
+			SettingsRepositoryInterface::class,
 			function () {
-				return new \PavelEspinal\WpPlugins\PECategoryFilter\Repositories\SettingsRepository();
+				return new SettingsRepository();
 			}
 		);
 
-		// Register filters.
-		$this->container->singleton(
-			\PavelEspinal\WpPlugins\PECategoryFilter\Filters\CategoryFilter::class,
+		// Register filters as transient (not singletons) so callers receive
+		// a new instance each time. Tests expect CategoryFilter to be
+		// non-singleton.
+		$this->container->bind(
+			CategoryFilter::class,
 			function ( $container ) {
-				return new \PavelEspinal\WpPlugins\PECategoryFilter\Filters\CategoryFilter(
-					$container->make( \PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterface::class )
+				return new CategoryFilter(
+					$container->make( SettingsRepositoryInterface::class )
 				);
 			}
 		);
 
 		// Register admin services.
 		$this->container->singleton(
-			\PavelEspinal\WpPlugins\PECategoryFilter\Admin\SettingsPage::class,
+			SettingsPage::class,
 			function ( $container ) {
-				return new \PavelEspinal\WpPlugins\PECategoryFilter\Admin\SettingsPage(
-					$container->make( \PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterface::class )
+				return new SettingsPage(
+					$container->make( SettingsRepositoryInterface::class )
 				);
 			}
 		);
@@ -98,5 +104,23 @@ class Plugin {
 	 */
 	public function getContainer(): Container {
 		return $this->container;
+	}
+
+	/**
+	 * Get plugin version used in tests and assets
+	 *
+	 * @return string
+	 */
+	public function getVersion(): string {
+		return defined( 'PE_CATEGORY_FILTER_VERSION' ) ? PE_CATEGORY_FILTER_VERSION : '2.0.0';
+	}
+
+	/**
+	 * Get plugin slug/name used by tests
+	 *
+	 * @return string
+	 */
+	public function getName(): string {
+		return 'pe-category-filter';
 	}
 }

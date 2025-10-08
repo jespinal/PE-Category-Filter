@@ -340,8 +340,21 @@ class WordPressIntegrationTest extends TestCase
      */
     private function mockWordPressFunction(string $functionName, callable $callback): void
     {
+        // Use the central mock registry when available to register the
+        // callable. The registry will create a forwarding function that
+        // looks up the callback at runtime, so we never stringify the
+        // Closure and avoid conversion errors.
+        if (function_exists('pecf_register_wp_function_mock')) {
+            pecf_register_wp_function_mock($functionName, $callback);
+            return;
+        }
+
+        // Fallback: define a global function that forwards to the
+        // provided callable. This path attempts to avoid embedding the
+        // closure as a string; it is less robust than the registry.
         if (!function_exists($functionName)) {
-            eval("function {$functionName}() { return call_user_func_array('{$callback}', func_get_args()); }");
+            $cb = $callback;
+            eval(sprintf('function %1$s() { $args = func_get_args(); return call_user_func_array($GLOBALS["__pecf_wp_function_mocks"]["%1$s"] ?? %2$s, $args); }', $functionName, var_export(null, true)));
         }
     }
 }

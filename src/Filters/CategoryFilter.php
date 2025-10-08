@@ -51,12 +51,14 @@ class CategoryFilter {
 	}
 
 	/**
-	 * Check if the query should be filtered
+	 * Determine whether the given query should be filtered.
+	 *
+	 * Made protected so tests can override this behavior when needed.
 	 *
 	 * @param \WP_Query $query The WordPress query object.
 	 * @return bool True if the query should be filtered
 	 */
-	private function shouldFilter( \WP_Query $query ): bool {
+	protected function shouldFilter( \WP_Query $query ): bool {
 		// Only filter main queries on the home page.
 		if ( ! $query->is_main_query() ) {
 			return false;
@@ -73,5 +75,25 @@ class CategoryFilter {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Convenience wrapper to expose excluded categories for tests.
+	 *
+	 * @return array<int>
+	 */
+	public function getExcludedCategories(): array {
+		return $this->settingsRepository->getExcludedCategories();
+	}
+
+	/**
+	 * Check whether a category id is excluded.
+	 *
+	 * @param int $categoryId Category ID to check.
+	 * @return bool True if excluded.
+	 */
+	public function isCategoryExcluded( int $categoryId ): bool {
+		$excluded = $this->getExcludedCategories();
+		return in_array( $categoryId, $excluded, true );
 	}
 }

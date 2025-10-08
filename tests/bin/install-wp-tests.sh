@@ -18,8 +18,12 @@ WP_CORE_DIR=${WP_CORE_DIR-/tmp/wordpress/}
 # Cleanup function for temp files
 cleanup() {
     echo "Cleaning up temporary files..."
-    rm -f /tmp/wordpress.zip /tmp/wordpress-nightly.zip /tmp/wp-latest.json
-    rm -rf /tmp/wordpress /tmp/wordpress-extract
+	# Only remove the temporary downloaded archives and the extracted
+	# staging directory. Do NOT remove the final WordPress core or the
+	# tests directory (for example /tmp/wordpress) because the test
+	# harness relies on those being present after this script exits.
+	rm -f /tmp/wordpress.zip /tmp/wordpress-nightly.zip /tmp/wp-latest.json
+	rm -rf /tmp/wordpress-extract
 }
 
 # Set up cleanup trap
@@ -71,7 +75,8 @@ install_wp() {
 	if [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' ]]; then
 		download https://wordpress.org/nightly-builds/wordpress-latest.zip  /tmp/wordpress-nightly.zip
 		unzip -q /tmp/wordpress-nightly.zip -d /tmp/wordpress-extract/
-		mv /tmp/wordpress-extract/wordpress/* "$WP_CORE_DIR"
+		# Copy contents to target dir (cp -a is more predictable in CI than mv)
+		cp -a /tmp/wordpress-extract/wordpress/. "$WP_CORE_DIR"
 	else
 		if [ $WP_VERSION == 'latest' ]; then
 			# Get the actual latest version from API
@@ -84,13 +89,19 @@ install_wp() {
 			fi
 			echo "Latest WordPress version: $LATEST_VERSION"
 			ARCHIVE_NAME="wordpress-$LATEST_VERSION"
+				# Ensure the test suite tag matches the core version we've chosen
+				WP_TESTS_TAG="tags/$LATEST_VERSION"
 		elif [[ $WP_VERSION == "6" ]]; then
 			# Handle specific major versions
 			LATEST_VERSION="6.0.11"
 			ARCHIVE_NAME="wordpress-$LATEST_VERSION"
+                # Ensure the test suite tag matches the core version we've chosen
+                WP_TESTS_TAG="tags/$LATEST_VERSION"
 		elif [[ $WP_VERSION == "6.4" ]]; then
 			LATEST_VERSION="6.4.7"
 			ARCHIVE_NAME="wordpress-$LATEST_VERSION"
+                # Ensure the test suite tag matches the core version we've chosen
+                WP_TESTS_TAG="tags/$LATEST_VERSION"
 		elif [[ $WP_VERSION == "5.9" ]]; then
 			LATEST_VERSION="5.9.21"
 			ARCHIVE_NAME="wordpress-$LATEST_VERSION"
@@ -126,13 +137,34 @@ install_wp() {
 			exit 1
 		fi
 		# Move contents from extracted directory to target directory
-		mv /tmp/wordpress-extract/wordpress/* "$WP_CORE_DIR"
+		# Copy contents (preserve attributes) instead of moving
+		cp -a /tmp/wordpress-extract/wordpress/. "$WP_CORE_DIR"
 		echo "WordPress installation completed successfully"
 	fi
 
 	# Remove trailing slash from WP_CORE_DIR to avoid double slashes
 	WP_CORE_DIR_CLEAN=$(echo "$WP_CORE_DIR" | sed 's:/*$::')
 	download https://raw.githubusercontent.com/markoheijnen/wp-mysqli/master/db.php "$WP_CORE_DIR_CLEAN/wp-content/db.php"
+
+	# Sanity check: ensure core file exists
+	# If class-wpdb.php is missing but wp-db.php exists (file naming differs
+	# between some WP releases), create a small shim so the test-suite's
+	# install script can require the expected filename.
+	if [[ ! -f "$WP_CORE_DIR_CLEAN/wp-includes/class-wpdb.php" && -f "$WP_CORE_DIR_CLEAN/wp-includes/wp-db.php" ]]; then
+		cat > "$WP_CORE_DIR_CLEAN/wp-includes/class-wpdb.php" <<'PHP'
+<?php
+// Compatibility shim for test-suite: forward to the real wp-db.php
+require_once __DIR__ . '/wp-db.php';
+PHP
+		echo "Created shim wp-includes/class-wpdb.php -> wp-db.php";
+	fi
+
+	if [[ ! -f "$WP_CORE_DIR_CLEAN/wp-includes/class-wpdb.php" ]]; then
+		echo "Error: wp-includes/class-wpdb.php missing after installation. Listing $WP_CORE_DIR_CLEAN:" >&2
+		ls -la "$WP_CORE_DIR_CLEAN" || true
+		ls -la "$WP_CORE_DIR_CLEAN/wp-includes" || true
+		exit 1
+	fi
 }
 
 install_test_suite() {
