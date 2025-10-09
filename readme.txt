@@ -3,14 +3,14 @@ Contributors: jespinal
 Tags: category, filter, modern, performance, security, accessibility, exclude, home page, pecf
 Requires PHP: 8.3
 Requires at least: 6.0
-Tested up to: 6.4
+Tested up to: 6.0 or higher
 Stable tag: 2.0.0
 
-Modern WordPress plugin that excludes categories from home page while keeping them accessible elsewhere. Features enterprise architecture, performance optimization, and security enhancements.
+Modern WordPress plugin for filtering categories from home page with enterprise-grade architecture, performance optimization, and security enhancements.
 
 == Description ==
 
-PE Category Filter is a modern WordPress plugin that allows you to exclude specific categories from your website's home page while keeping those posts accessible through category archives, search, and direct URLs.
+PE Category Filter is a modern WordPress plugin that allows you to filter specific categories from your website's home page while keeping those posts accessible through category archives, search, and direct URLs.
 
 **Key Features:**
 
@@ -18,8 +18,7 @@ PE Category Filter is a modern WordPress plugin that allows you to exclude speci
 * **Performance Optimization:** Intelligent caching with 80% reduction in database queries
 * **Security Enhancements:** CSRF protection, input validation, and output escaping
 * **Accessibility:** Screen reader support and keyboard navigation
-* **Testing:** Comprehensive test suite with 51 tests covering all functionality
-* **Documentation:** Complete user and developer guides with troubleshooting support
+* **Testing:** Comprehensive automated test suite (unit and integration tests) covering core functionality
 
 **How it works:**
 

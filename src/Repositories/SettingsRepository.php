@@ -8,6 +8,7 @@
 
 namespace PavelEspinal\WpPlugins\PECategoryFilter\Repositories;
 
+use PavelEspinal\WpPlugins\PECategoryFilter\Core\Constants;
 use PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterface;
 
 /**
@@ -132,7 +133,7 @@ class SettingsRepository implements SettingsRepositoryInterface {
 	public function getDefaultSettings(): array {
 		return array(
 			'excluded_categories' => array(),
-			'version'             => '2.0.0',
+			'version'             => Constants::VERSION,
 			'last_updated'        => gmdate( 'Y-m-d H:i:s' ),
 		);
 	}
