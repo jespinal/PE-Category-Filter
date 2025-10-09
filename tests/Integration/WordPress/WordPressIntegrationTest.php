@@ -280,10 +280,10 @@ class WordPressIntegrationTest extends TestCase
         $this->assertCount(3, $result);
         $this->assertArrayHasKey('existing', $result);
         
-        // Check that both GitHub and Author links are present
+        // Check that the current links are present
         $resultString = implode(' ', $result);
         $this->assertStringContainsString('GitHub', $resultString);
-        $this->assertStringContainsString('Author', $resultString);
+        $this->assertStringContainsString('Visit plugin site', $resultString);
     }
 
     /**

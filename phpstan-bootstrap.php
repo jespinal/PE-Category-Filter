@@ -11,7 +11,7 @@
 
 // Define plugin constants for PHPStan analysis
 if (!defined('PE_CATEGORY_FILTER_VERSION')) {
-    define('PE_CATEGORY_FILTER_VERSION', '2.0.0');
+    define('PE_CATEGORY_FILTER_VERSION', '2.0.0'); // Fallback for PHPStan
 }
 
 if (!defined('PE_CATEGORY_FILTER_PLUGIN_FILE')) {

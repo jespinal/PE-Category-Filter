@@ -112,7 +112,7 @@ class Plugin {
 	 * @return string
 	 */
 	public function getVersion(): string {
-		return defined( 'PE_CATEGORY_FILTER_VERSION' ) ? PE_CATEGORY_FILTER_VERSION : '2.0.0';
+		return defined( 'PE_CATEGORY_FILTER_VERSION' ) ? PE_CATEGORY_FILTER_VERSION : Constants::VERSION;
 	}
 
 	/**

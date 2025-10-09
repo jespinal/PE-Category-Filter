@@ -60,7 +60,15 @@
     "check-all": [
       "@quality",
       "@test"
-    ]
+    ],
+    "version:update": "php scripts/update-version.php",
+    "version:show": "php -r \"require 'src/Core/Constants.php'; echo \\PavelEspinal\\\\WpPlugins\\\\PECategoryFilter\\\\Core\\\\Constants::VERSION . PHP_EOL;\"",
+    "release": "./scripts/release.sh",
+    "release:patch": "./scripts/release.sh --patch",
+    "release:minor": "./scripts/release.sh --minor",
+    "release:major": "./scripts/release.sh --major",
+    "build": "./scripts/build-distribution.sh",
+    "verify": "./scripts/verify-release.sh"
   },
   "config": {
     "allow-plugins": {

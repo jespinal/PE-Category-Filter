@@ -76,6 +76,7 @@ class WordPressIntegration {
 		add_action( 'admin_menu', array( $this, 'addAdminMenu' ) );
 		add_action( 'admin_init', array( $this, 'registerSettings' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueueAdminAssets' ) );
+		add_filter( 'plugin_row_meta', array( $this, 'addPluginRowMeta' ), 10, 2 );
 	}
 
 	/**
@@ -253,8 +254,19 @@ class WordPressIntegration {
 			return $existing;
 		}
 
-		$existing[] = '<a href="https://github.com/jespinal/PE-Category-Filter">GitHub</a>';
-		$existing[] = '<a href="https://pavelespinal.com/">Author</a>';
-		return $existing;
+		$new_links = array(
+			'plugin_site' => sprintf(
+				'<a href="%s" target="_blank">%s</a>',
+				'https://pavelespinal.com/wordpress-plugins-pe-category-filter/',
+				__( 'Visit plugin site', 'pe-category-filter' )
+			),
+			'support'     => sprintf(
+				'<a href="%s" target="_blank">%s</a>',
+				'https://github.com/jespinal/PE-Category-Filter',
+				__( 'GitHub', 'pe-category-filter' )
+			),
+		);
+
+		return array_merge( $existing, $new_links );
 	}
 }

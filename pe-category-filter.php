@@ -22,8 +22,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Load constants first.
+require_once __DIR__ . '/src/Core/Constants.php';
+
 // Define plugin constants.
-define( 'PE_CATEGORY_FILTER_VERSION', '2.0.0' );
+define( 'PE_CATEGORY_FILTER_VERSION', \PavelEspinal\WpPlugins\PECategoryFilter\Core\Constants::VERSION );
 define( 'PE_CATEGORY_FILTER_PLUGIN_FILE', __FILE__ );
 define( 'PE_CATEGORY_FILTER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PE_CATEGORY_FILTER_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

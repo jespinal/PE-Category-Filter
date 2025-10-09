@@ -58,6 +58,20 @@ This plugin uses modern PHP patterns inspired by Symfony:
 - **Service Layer:** Business logic separation from WordPress hooks
 - **Interface Segregation:** Small, focused interfaces for flexibility
 
+### **Architecture Notes**
+
+This plugin intentionally uses enterprise-grade architecture patterns (dependency injection, service layers, comprehensive testing) that may seem over-engineered for a simple category filter.
+
+**Why?** This serves as a **WordPress plugin development template** demonstrating modern PHP practices, automated testing, and CI/CD workflows that developers can adapt for more complex projects.
+
+**When to use this approach:**
+- Multi-feature plugins with complex business logic
+- Plugins requiring extensive testing and maintainability
+- Team development environments
+- Learning modern WordPress development patterns
+
+**For simpler plugins:** A basic procedural approach would be perfectly adequate.
+
 ## 🧪 **Development**
 
 ### **Prerequisites**
@@ -73,8 +87,7 @@ cd PE-Category-Filter
 composer install
 ```
 
-### **Testing (local)
-**
+### **Testing (local)**
 
 The project includes both unit and integration tests. Integration tests use the WordPress PHPUnit test suite and require a local WordPress test environment (database + test suite).
 
@@ -153,6 +166,40 @@ Common gotchas:
 ### **Contributing**
 Due to time constraints, we encourage forking the repository and making improvements for yourself. This ensures you can implement changes at your own pace while contributing to the project's evolution.
 
+### **Version Management**
+
+This plugin uses centralized version management to ensure consistency across all files. The version is defined in a single location and automatically propagated to all necessary files.
+
+**Single Source of Truth:**
+- Version is defined in `src/Core/Constants.php`
+- All other files reference this constant dynamically
+
+**For Releases:**
+```bash
+# Update version across all files with one command
+composer run version:update 2.0.1
+
+# Verify the version was updated
+composer run version:show
+
+# Test to ensure nothing broke
+composer test
+
+# Commit and tag
+git add . && git commit -m "chore: bump version to 2.0.1"
+git tag v2.0.1
+git push && git push --tags
+```
+
+**Files Updated Automatically:**
+- Plugin header (`pe-category-filter.php`)
+- WordPress.org stable tag (`readme.txt`)
+- Settings defaults
+- Test expectations
+- Documentation references
+
+This eliminates the risk of version inconsistencies and makes releases effortless.
+
 ## 📚 **Documentation**
 
 Documentation is planned; for now please consult the codebase and inline comments for guidance.
@@ -177,5 +224,4 @@ This plugin is licensed under the GPL v2 or later.
 
 ## 🤝 **Support**
 
-- **WordPress.org:** [Plugin Support Forum](https://wordpress.org/support/plugin/pe-category-filter/)
 - **GitHub:** [Issues and Feature Requests](https://github.com/jespinal/PE-Category-Filter/issues)
