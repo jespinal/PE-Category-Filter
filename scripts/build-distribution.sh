@@ -55,15 +55,16 @@ USAGE:
     ./scripts/build-distribution.sh [OPTIONS]
 
 OPTIONS:
-    -v, --version VERSION    Target version (required)
+    -v, --version VERSION    Target version (optional, auto-detected from Constants.php)
     -o, --output DIR         Output directory (default: build)
     -c, --clean              Clean build directory first
     -h, --help               Show this help
 
 EXAMPLES:
-    ./scripts/build-distribution.sh -v 2.0.1
+    ./scripts/build-distribution.sh                    # Auto-detect version
+    ./scripts/build-distribution.sh -v 2.0.1          # Explicit version
     ./scripts/build-distribution.sh -v 2.1.0 -o releases
-    ./scripts/build-distribution.sh -v 2.0.1 --clean
+    ./scripts/build-distribution.sh --clean           # Auto-detect + clean build
 
 DESCRIPTION:
     Creates a clean, WordPress.org ready distribution package by:
@@ -72,6 +73,8 @@ DESCRIPTION:
     - Optimizing autoloader
     - Generating checksums
     - Creating version-specific ZIP file
+
+    If no version is specified, it will be auto-detected from src/Core/Constants.php
 
 EOF
 }
@@ -103,42 +106,63 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Auto-detect version from Constants.php if not provided
+auto_detect_version() {
+    if [[ -z "$VERSION" ]]; then
+        log_info "No version specified, auto-detecting from Constants.php..."
+
+        # Check if Constants.php exists
+        if [[ ! -f "$PROJECT_ROOT/src/Core/Constants.php" ]]; then
+            log_error "Constants.php not found at src/Core/Constants.php"
+            log_error "Either provide version with -v or ensure Constants.php exists"
+            exit 1
+        fi
+
+        # Extract version from Constants.php
+        VERSION=$(php -r "require '$PROJECT_ROOT/src/Core/Constants.php'; echo \PavelEspinal\WpPlugins\PECategoryFilter\Core\Constants::VERSION;")
+
+        if [[ -z "$VERSION" ]]; then
+            log_error "Could not auto-detect version from Constants.php"
+            log_error "Please provide version with -v or --version"
+            exit 1
+        fi
+
+        log_success "Auto-detected version: $VERSION"
+    fi
+}
+
 # Validation
 validate_environment() {
     log_info "Validating environment..."
-    
-    # Check if version was provided
-    if [[ -z "$VERSION" ]]; then
-        log_error "Version is required. Use -v or --version to specify."
-        echo "Example: ./scripts/build-distribution.sh -v 2.0.1"
-        exit 1
-    fi
-    
+
+    # Auto-detect version if not provided
+    auto_detect_version
+
     # Validate version format (semantic versioning)
     if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         log_error "Version must be in semantic versioning format (X.Y.Z)"
         echo "Example: 2.0.1, 2.1.0, 3.0.0"
         exit 1
     fi
-    
+
     # Check if we're in the project root
     if [[ ! -f "$PROJECT_ROOT/pe-category-filter.php" ]]; then
         log_error "Must be run from the PE Category Filter project root"
         exit 1
     fi
-    
+
     # Check if composer is available
     if ! command -v composer &> /dev/null; then
         log_error "Composer is required but not installed"
         exit 1
     fi
-    
+
     # Check if zip is available
     if ! command -v zip &> /dev/null; then
         log_error "zip command is required but not installed"
         exit 1
     fi
-    
+
     # Check git status (warn if dirty)
     cd "$PROJECT_ROOT"
     if ! git diff-index --quiet HEAD --; then
@@ -150,42 +174,42 @@ validate_environment() {
             exit 0
         fi
     fi
-    
+
     log_success "Environment validation passed"
 }
 
 # Prepare build directory
 prepare_build_directory() {
     log_info "Preparing build directory..."
-    
+
     cd "$PROJECT_ROOT"
-    
+
     # Create build directory if it doesn't exist
     mkdir -p "$BUILD_DIR"
-    
+
     # Clean if requested
     if [[ "$CLEAN_BUILD" == true ]]; then
         log_info "Cleaning build directory..."
         rm -rf "${BUILD_DIR:?}"/*
     fi
-    
+
     log_success "Build directory ready: $BUILD_DIR"
 }
 
 # Create clean temporary build
 create_clean_build() {
     log_info "Creating clean build environment..."
-    
+
     local temp_dir="$BUILD_DIR/temp-$PLUGIN_SLUG-$VERSION"
-    
+
     # Remove temp directory if it exists
     rm -rf "$temp_dir"
-    
+
     # Create temporary directory
     mkdir -p "$temp_dir"
-    
+
     log_info "Copying source files..."
-    
+
     # Copy all files except excluded ones
     rsync -av \
         --exclude='.git/' \
@@ -196,6 +220,7 @@ create_clean_build() {
         --exclude='coverage/' \
         --exclude='docs/' \
         --exclude='build/' \
+        --exclude='pe-category-filter-svn/' \
         --exclude='.gitignore' \
         --exclude='.gitattributes' \
         --exclude='composer.lock' \
@@ -209,12 +234,12 @@ create_clean_build() {
         --exclude='scripts/' \
         "$PROJECT_ROOT/" \
         "$temp_dir/"
-    
+
     # Change to temp directory for composer operations
     cd "$temp_dir"
-    
+
     log_info "Installing production dependencies..."
-    
+
     # Install production dependencies only
     if [[ -f "composer.json" ]]; then
         composer install --no-dev --optimize-autoloader --no-interaction --quiet
@@ -222,70 +247,70 @@ create_clean_build() {
             log_error "Composer install failed"
             exit 1
         fi
-        
+
         # Remove composer files from distribution
         rm -f composer.json composer.lock
     fi
-    
+
     # Create a simple autoloader for the distributed version
     log_info "Optimizing for distribution..."
-    
+
     # Verify plugin structure
     if [[ ! -f "pe-category-filter.php" ]]; then
         log_error "Main plugin file not found in build"
         exit 1
     fi
-    
+
     if [[ ! -f "readme.txt" ]]; then
         log_error "readme.txt not found in build"
         exit 1
     fi
-    
+
     # Store temp directory path for later use
     echo "$temp_dir" > "$PROJECT_ROOT/$BUILD_DIR/.temp_path"
-    
+
     log_success "Clean build environment created"
 }
 
 # Generate distribution packages
 generate_distribution() {
     log_info "Generating distribution packages..."
-    
+
     cd "$PROJECT_ROOT"
-    
+
     # Read temp directory path
     local temp_dir
     temp_dir=$(cat "$BUILD_DIR/.temp_path")
-    
+
     local zip_name="$PLUGIN_SLUG-v$VERSION.zip"
     local tar_name="$PLUGIN_SLUG-v$VERSION.tar.gz"
     local zip_path="$BUILD_DIR/$zip_name"
     local tar_path="$BUILD_DIR/$tar_name"
-    
+
     log_info "Creating ZIP archive..."
-    
+
     # Create ZIP file
     cd "$(dirname "$temp_dir")"
     zip -r "$PROJECT_ROOT/$zip_path" "$(basename "$temp_dir")" -q
-    
+
     if [[ $? -ne 0 ]]; then
         log_error "Failed to create ZIP archive"
         exit 1
     fi
-    
+
     log_info "Creating TAR.GZ archive..."
-    
+
     # Create TAR.GZ file
     tar -czf "$PROJECT_ROOT/$tar_path" "$(basename "$temp_dir")"
-    
+
     if [[ $? -ne 0 ]]; then
         log_error "Failed to create TAR.GZ archive"
         exit 1
     fi
-    
+
     # Return to project root
     cd "$PROJECT_ROOT"
-    
+
     # Generate checksums
     log_info "Generating checksums..."
     (
@@ -293,7 +318,7 @@ generate_distribution() {
         sha256sum "$zip_name" > "checksums-v$VERSION.txt"
         sha256sum "$tar_name" >> "checksums-v$VERSION.txt"
     )
-    
+
     # Generate build info
     log_info "Generating build information..."
     cat > "$BUILD_DIR/build-info-v$VERSION.txt" << EOF
@@ -319,19 +344,19 @@ Package Contents:
 
 Ready for WordPress.org submission: YES
 EOF
-    
+
     # Get file sizes
     local zip_size
     local tar_size
     zip_size=$(ls -lh "$BUILD_DIR/$zip_name" | awk '{print $5}')
     tar_size=$(ls -lh "$BUILD_DIR/$tar_name" | awk '{print $5}')
-    
+
     # Clean up temp directory
     rm -rf "$temp_dir"
     rm -f "$BUILD_DIR/.temp_path"
-    
+
     log_success "Distribution packages created successfully"
-    
+
     # Show results
     echo
     echo "📦 Distribution Summary"
@@ -357,12 +382,12 @@ main() {
     echo "🏗️  PE Category Filter - Distribution Builder"
     echo "=============================================="
     echo
-    
+
     validate_environment
     prepare_build_directory
     create_clean_build
     generate_distribution
-    
+
     echo
     log_success "Build completed successfully! 🎉"
     echo

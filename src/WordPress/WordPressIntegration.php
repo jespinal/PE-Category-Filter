@@ -125,9 +125,9 @@ class WordPressIntegration {
 			return;
 		}
 
-		$isDebug = defined( 'WP_DEBUG' ) && WP_DEBUG;
-		$cssFile = $isDebug ? 'admin.css' : 'admin.min.css';
-		$jsFile  = $isDebug ? 'admin.js' : 'admin.min.js';
+		// Always use non-minified files for easier debugging and maintenance
+		$cssFile = 'admin.css';
+		$jsFile  = 'admin.js';
 
 		wp_enqueue_style(
 			'pecf-admin',

@@ -113,7 +113,7 @@ updateFile(
 
 // 5. Update test expectations (they might have hardcoded version checks)
 $testFiles = [
-    'tests/Integration/Core/PluginTest.php' => "/assertEquals\\('[^']+', \\$version\\);/",
+    'tests/Integration/Core/PluginTest.php' => "/assertEquals\\('[^']+', \\\$version\\);/",
     'tests/Unit/Repositories/SettingsRepositoryTest.php' => "/'version' => '[^']+',/"
 ];
 
@@ -123,7 +123,7 @@ foreach ($testFiles as $file => $pattern) {
         if (preg_match($pattern, $content)) {
             // Update test expectations
             if ($file === 'tests/Integration/Core/PluginTest.php') {
-                updateFile($file, $pattern, "assertEquals('$newVersion', \$version);", "Updated test version expectation in $file");
+                updateFile($file, $pattern, "assertEquals('$newVersion', \\\$version);", "Updated test version expectation in $file");
             } else {
                 updateFile($file, $pattern, "'version' => '$newVersion',", "Updated test version expectation in $file");
             }
