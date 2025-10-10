@@ -115,7 +115,7 @@ ls -la build/
 ./scripts/release.sh --dry-run
 
 # Verify existing package
-./scripts/verify-release.sh -v $(php -r "echo PE_Category_Filter\Core\Constants::VERSION;")
+./scripts/verify-release.sh -v $(php -r "require 'src/Core/Constants.php'; echo \PavelEspinal\WpPlugins\PECategoryFilter\Core\Constants::VERSION;")
 ```
 
 ## 📋 Requirements
@@ -146,11 +146,11 @@ The scripts are integrated with composer for easy access:
   "scripts": {
     "release": "./scripts/release.sh",
     "release:patch": "./scripts/release.sh --patch",
-    "release:minor": "./scripts/release.sh --minor", 
+    "release:minor": "./scripts/release.sh --minor",
     "release:major": "./scripts/release.sh --major",
     "build": "./scripts/build-distribution.sh",
     "verify": "./scripts/verify-release.sh",
-    "version:show": "php -r \"echo PE_Category_Filter\\Core\\Constants::VERSION . PHP_EOL;\""
+    "version:show": "php -r \"require 'src/Core/Constants.php'; echo \\PavelEspinal\\\\WpPlugins\\\\PECategoryFilter\\\\Core\\\\Constants::VERSION . PHP_EOL;\""
   }
 }
 ```

@@ -1,12 +1,13 @@
 === PE Category Filter ===
-Contributors: jespinal
-Tags: category, filter, modern, performance, security, accessibility, exclude, home page, pecf
+Contributors: khratos
+Tags: category, filter, performance, security, exclude
 Requires PHP: 8.3
 Requires at least: 6.0
-Tested up to: 6.0 or higher
+Tested up to: 6.8
 Stable tag: 2.0.0
+License: GPLv2 or later
 
-Modern WordPress plugin for filtering categories from home page with enterprise-grade architecture, performance optimization, and security enhancements.
+Modern WordPress plugin for filtering categories from home page with performance optimization and security enhancements.
 
 == Description ==
 
@@ -32,11 +33,8 @@ The plugin modifies WordPress's main query on the home page to exclude posts fro
 **Live Examples:**
 
 This plugin is actively used on:
-* [pavelespinal.com](https://pavelespinal.com) - Personal website and blog
-* [slackware-es.com](https://slackware-es.com) - Spanish Slackware Linux community
 * [trendsanctuary.com](https://trendsanctuary.com) - Technology, life and home trends and insights
 * [ecosdeleden.com](https://ecosdeleden.com) - Educational content for children
-* [dietapaleo.com](https://dietapaleo.com) - Paleo diet and lifestyle content
 
 == Installation ==
 
@@ -46,19 +44,12 @@ This plugin is actively used on:
 3. Click "Install Now" and "Activate"
 
 **Manual Installation:**
-1. Download the latest release from [GitHub](https://github.com/jespinal/PE-Category-Filter/releases)
+1. Download the plugin from the WordPress.org repository
 2. Upload to `/wp-content/plugins/pe-category-filter/`
 3. Activate through the WordPress admin
 
-**Composer Installation:**
-```bash
-composer require jespinal/pe-category-filter
-```
-
-**WP-CLI Installation:**
-```bash
-wp plugin install pe-category-filter --activate
-```
+**Alternative Methods:**
+For developers, this plugin is also available through Composer and GitHub for advanced installation methods.
 
 == Configuration ==
 
@@ -99,8 +90,20 @@ Yes, the plugin works with all major page builders including Elementor, Gutenber
 
 == Screenshots ==
 
-1. Plugin in the Plugins menu.
+1. Plugin in the list of installed plugins.
 2. Plugin configuration panel.
+3. Plugin configuration panel - Help section showing Overview.
+4. Plugin configuration panel - Help section showing How to use guide.
+
+== License ==
+
+This plugin is licensed under the GPLv2 or later.
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 == Changelog ==
 
