@@ -220,6 +220,7 @@ create_clean_build() {
         --exclude='coverage/' \
         --exclude='docs/' \
         --exclude='build/' \
+        --exclude='pe-category-filter-svn/' \
         --exclude='.gitignore' \
         --exclude='.gitattributes' \
         --exclude='composer.lock' \

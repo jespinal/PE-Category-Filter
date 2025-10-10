@@ -23,7 +23,7 @@ final class Constants {
 	 *
 	 * @since 2.0.0
 	 */
-	public const VERSION = '2.0.0';
+	public const VERSION = '2.0.1';
 
 	/**
 	 * Minimum WordPress version required

@@ -4,7 +4,7 @@ Tags: category, filter, performance, security, exclude
 Requires PHP: 8.3
 Requires at least: 6.0
 Tested up to: 6.8
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPLv2 or later
 
 Modern WordPress plugin for filtering categories from home page with performance optimization and security enhancements.
@@ -106,6 +106,14 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 == Changelog ==
+
+= 2.0.1 =
+* Fixed admin interface category layout to display one per line
+* Improved category description display and formatting
+* Enhanced CSS with vertical flexbox layout for better readability
+* Simplified asset loading by removing unused minified files
+* Fixed category grid breaking when descriptions are present
+* Improved user experience in plugin settings page
 
 = 2.0.0 =
 * Complete architectural modernization

@@ -153,7 +153,7 @@ class SettingsRepositoryTest extends TestCase
     {
         $expectedSettings = [
             'excluded_categories' => [1, 2, 3],
-            'version' => '2.0.0',
+            'version' => '2.0.1',
             'last_updated' => '2025-01-04 12:00:00'
         ];
         

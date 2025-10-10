@@ -81,26 +81,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 									// @phpstan-ignore-next-line -- Variable is passed from controller via extract()
 									$isExcluded = in_array( $category->term_id, $excludedCategories, true );
 									?>
-									<label for="category-<?php echo esc_attr( $category->term_id ); ?>" class="pecf-category-item" data-category-name="<?php echo esc_attr( strtolower( $category->name ) ); ?>">
-										<input 
-											type="checkbox" 
-											id="category-<?php echo esc_attr( $category->term_id ); ?>"
-											name="pecf_excluded_categories[]" 
-											value="<?php echo esc_attr( $category->term_id ); ?>"
-											<?php checked( $isExcluded ); ?>
-											class="category-checkbox"
-											aria-describedby="category-<?php echo esc_attr( $category->term_id ); ?>-help"
-										/>
-										<span class="category-name"><?php echo esc_html( $category->name ); ?></span>
-										<span class="category-count" aria-label="<?php printf( /* translators: %d is the number of posts in the category */ esc_attr__( '%d posts in this category', 'pe-category-filter' ), $category->count ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Variable is already escaped in printf ?>">
-											(<?php echo esc_html( $category->count ); ?> <?php esc_html_e( 'posts', 'pe-category-filter' ); ?>)
-										</span>
+									<div class="pecf-category-item" data-category-name="<?php echo esc_attr( strtolower( $category->name ) ); ?>">
+										<div class="pecf-category-main">
+											<input 
+												type="checkbox" 
+												id="category-<?php echo esc_attr( $category->term_id ); ?>"
+												name="pecf_excluded_categories[]" 
+												value="<?php echo esc_attr( $category->term_id ); ?>"
+												<?php checked( $isExcluded ); ?>
+												class="category-checkbox"
+												aria-describedby="category-<?php echo esc_attr( $category->term_id ); ?>-help"
+											/>
+											<label for="category-<?php echo esc_attr( $category->term_id ); ?>" class="category-name"><?php echo esc_html( $category->name ); ?></label>
+											<span class="category-count" aria-label="<?php printf( /* translators: %d is the number of posts in the category */ esc_attr__( '%d posts in this category', 'pe-category-filter' ), $category->count ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Variable is already escaped in printf ?>">
+												(<?php echo esc_html( $category->count ); ?> <?php esc_html_e( 'posts', 'pe-category-filter' ); ?>)
+											</span>
+										</div>
 										<?php if ( $category->description ) : ?>
 											<span id="category-<?php echo esc_attr( $category->term_id ); ?>-help" class="category-description">
 												<?php echo esc_html( $category->description ); ?>
 											</span>
 										<?php endif; ?>
-									</label>
+									</div>
 								<?php endforeach; ?>
 							</div>
 						<?php endif; ?>
