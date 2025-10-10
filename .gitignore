@@ -49,3 +49,6 @@ test-results/
 # Temporary files
 tmp/
 .phpactor.json
+
+# SVN working directory for WordPress.org
+pe-category-filter-svn/

@@ -75,6 +75,27 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Auto-detect version if not provided
+if [[ -z "$VERSION" && -z "$ZIP_FILE" ]]; then
+    log_info "Auto-detecting version from Constants.php..."
+    if [[ -f "$PROJECT_ROOT/src/Core/Constants.php" ]]; then
+        VERSION=$(php -r "
+            require '$PROJECT_ROOT/src/Core/Constants.php';
+            echo \PavelEspinal\WpPlugins\PECategoryFilter\Core\Constants::VERSION;
+        " 2>/dev/null)
+
+        if [[ -n "$VERSION" ]]; then
+            log_info "Detected version: $VERSION"
+        else
+            log_error "Failed to read version from Constants.php"
+            exit 1
+        fi
+    else
+        log_error "Constants.php not found and no version specified"
+        exit 1
+    fi
+fi
+
 # Determine ZIP file path
 if [[ -z "$ZIP_FILE" ]]; then
     if [[ -z "$VERSION" ]]; then
@@ -91,13 +112,13 @@ verify_release() {
     echo
     echo "📦 Verifying: $(basename "$ZIP_FILE")"
     echo
-    
+
     # Check if ZIP exists
     if [[ ! -f "$ZIP_FILE" ]]; then
         log_error "ZIP file not found: $ZIP_FILE"
         exit 1
     fi
-    
+
     # Basic ZIP integrity
     log_info "Checking ZIP integrity..."
     if unzip -t "$ZIP_FILE" >/dev/null 2>&1; then
@@ -106,47 +127,47 @@ verify_release() {
         log_error "ZIP file is corrupted"
         exit 1
     fi
-    
+
     # Extract to temporary directory for analysis
     local temp_dir="/tmp/pe-category-filter-verify-$$"
     mkdir -p "$temp_dir"
     unzip -q "$ZIP_FILE" -d "$temp_dir"
-    
+
     # Find the plugin directory
     local plugin_dir
     plugin_dir=$(find "$temp_dir" -name "pe-category-filter.php" -exec dirname {} \;)
-    
+
     if [[ -z "$plugin_dir" ]]; then
         log_error "Main plugin file not found in ZIP"
         rm -rf "$temp_dir"
         exit 1
     fi
-    
+
     cd "$plugin_dir"
-    
+
     # WordPress plugin header validation
     log_info "Validating WordPress plugin headers..."
     local headers_ok=true
-    
+
     if ! grep -q "Plugin Name:" pe-category-filter.php; then
         log_error "Missing 'Plugin Name' header"
         headers_ok=false
     fi
-    
+
     if ! grep -q "Version:" pe-category-filter.php; then
         log_error "Missing 'Version' header"
         headers_ok=false
     fi
-    
+
     if ! grep -q "License:" pe-category-filter.php; then
         log_error "Missing 'License' header"
         headers_ok=false
     fi
-    
+
     if [[ "$headers_ok" == true ]]; then
         log_success "WordPress plugin headers OK"
     fi
-    
+
     # Check for required files
     log_info "Checking required files..."
     local required_files=("pe-category-filter.php" "readme.txt")
@@ -157,23 +178,23 @@ verify_release() {
             log_error "Missing required file: $file"
         fi
     done
-    
+
     # Check for excluded development files
     log_info "Checking for excluded development files..."
     local dev_files=("tests" "docs" ".github" "phpunit.xml" "phpcs.xml")
     local exclusions_ok=true
-    
+
     for file in "${dev_files[@]}"; do
         if [[ -e "$file" ]]; then
             log_warning "Development file included: $file"
             exclusions_ok=false
         fi
     done
-    
+
     if [[ "$exclusions_ok" == true ]]; then
         log_success "Development files properly excluded"
     fi
-    
+
     # File permissions check
     log_info "Checking file permissions..."
     if find . -type f -perm /111 -name "*.php" | grep -q .; then
@@ -181,19 +202,19 @@ verify_release() {
     else
         log_success "File permissions OK"
     fi
-    
+
     # Package size analysis
     log_info "Analyzing package size..."
     local zip_size
     zip_size=$(stat -f%z "$ZIP_FILE" 2>/dev/null || stat -c%s "$ZIP_FILE")
-    local zip_size_mb=$((zip_size / 1024 / 1024))
-    
-    if [[ $zip_size_mb -gt 5 ]]; then
+    local zip_size_mb=$(printf "%.1f" $(echo "scale=2; $zip_size / 1024 / 1024" | bc))
+
+    if [[ $(echo "$zip_size_mb > 5" | bc) -eq 1 ]]; then
         log_warning "Package size is large: ${zip_size_mb}MB (consider optimization)"
     else
         log_success "Package size OK: ${zip_size_mb}MB"
     fi
-    
+
     # Quick mode skip deep checks
     if [[ "$QUICK_MODE" == true ]]; then
         log_info "Skipping deep checks (quick mode)"
@@ -205,7 +226,7 @@ verify_release() {
         else
             log_error "PHP syntax errors found"
         fi
-        
+
         # Autoloader check
         if [[ -f "vendor/autoload.php" ]]; then
             log_success "Composer autoloader present"
@@ -213,10 +234,10 @@ verify_release() {
             log_warning "No composer autoloader found"
         fi
     fi
-    
+
     # Clean up
     rm -rf "$temp_dir"
-    
+
     echo
     log_success "Release verification completed!"
     echo
