@@ -125,7 +125,7 @@ class WordPressIntegration {
 			return;
 		}
 
-		// Always use non-minified files for easier debugging and maintenance
+		// Always use non-minified files for easier debugging and maintenance.
 		$cssFile = 'admin.css';
 		$jsFile  = 'admin.js';
 
