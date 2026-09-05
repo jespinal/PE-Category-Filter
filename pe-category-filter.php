@@ -10,11 +10,8 @@
  * Author URI:    https://pavelespinal.com/about-me/
  * License:       GPL-2.0+
  * License URI:   http://www.gnu.org/licenses/gpl-2.0.txt
- */
-
-/**
- * PE Category Filter - Modern WordPress plugin for filtering categories
- * @package     PECF
+ *
+ * @package PECF
  */
 
 // Prevent direct access.
