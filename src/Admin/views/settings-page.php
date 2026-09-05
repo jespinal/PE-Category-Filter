@@ -23,6 +23,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 		
 		<table class="form-table" role="presentation">
 			<tbody>
+				<?php
+				$currentScope = isset( $filterScope ) ? (string) $filterScope : 'blog_index';
+				?>
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Filter scope', 'pe-category-filter' ); ?></th>
+					<td>
+						<fieldset>
+							<legend class="screen-reader-text">
+								<?php esc_html_e( 'Choose where excluded categories are filtered', 'pe-category-filter' ); ?>
+							</legend>
+							<label>
+								<input type="radio" name="pecf_filter_scope" value="blog_index" <?php checked( $currentScope, 'blog_index' ); ?> />
+								<?php esc_html_e( 'Blog posts index only (default)', 'pe-category-filter' ); ?>
+							</label>
+							<p class="description"><?php esc_html_e( 'Filters the main blog listing. Recommended for most sites.', 'pe-category-filter' ); ?></p>
+							<label>
+								<input type="radio" name="pecf_filter_scope" value="front_page" <?php checked( $currentScope, 'front_page' ); ?> />
+								<?php esc_html_e( 'Blog index + static front page', 'pe-category-filter' ); ?>
+							</label>
+							<p class="description"><?php esc_html_e( 'Also filters the main query on a static front page that shows posts.', 'pe-category-filter' ); ?></p>
+							<label>
+								<input type="radio" name="pecf_filter_scope" value="secondary" <?php checked( $currentScope, 'secondary' ); ?> />
+								<?php esc_html_e( 'Everywhere on the front end (includes theme sections)', 'pe-category-filter' ); ?>
+							</label>
+							<p class="description"><?php esc_html_e( 'Also filters secondary post queries, such as theme homepage sections and recent-posts blocks. Use this if excluded posts still appear on your homepage.', 'pe-category-filter' ); ?></p>
+						</fieldset>
+					</td>
+				</tr>
 				<tr>
 					<th scope="row">
 						<label for="pecf-excluded-categories">

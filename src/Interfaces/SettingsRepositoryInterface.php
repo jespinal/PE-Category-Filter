@@ -30,6 +30,21 @@ interface SettingsRepositoryInterface {
 	public function setExcludedCategories( array $categories ): bool;
 
 	/**
+	 * Get the configured filter scope.
+	 *
+	 * @return string One of Constants::VALID_FILTER_SCOPES.
+	 */
+	public function getFilterScope(): string;
+
+	/**
+	 * Set the filter scope.
+	 *
+	 * @param string $scope One of Constants::VALID_FILTER_SCOPES.
+	 * @return bool True on success, false on failure (invalid scope).
+	 */
+	public function setFilterScope( string $scope ): bool;
+
+	/**
 	 * Get all plugin settings
 	 *
 	 * @return array<string, mixed> All plugin settings

@@ -8,6 +8,7 @@
 
 namespace PavelEspinal\WpPlugins\PECategoryFilter\Admin;
 
+use PavelEspinal\WpPlugins\PECategoryFilter\Core\Constants;
 use PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterface;
 
 /**
@@ -65,6 +66,15 @@ class SettingsPage {
 			)
 		);
 
+		register_setting(
+			'pecf_settings',
+			'pecf_filter_scope',
+			array(
+				'sanitize_callback' => array( $this, 'sanitizeFilterScope' ),
+				'default'           => Constants::DEFAULT_FILTER_SCOPE,
+			)
+		);
+
 		add_settings_section(
 			'pecf_main_section',
 			__( 'Category Filter Settings', 'pe-category-filter' ),
@@ -84,6 +94,7 @@ class SettingsPage {
 	public function renderSettingsPage(): void {
 		$categories         = get_categories( array( 'hide_empty' => false ) );
 		$excludedCategories = $this->settingsRepository->getExcludedCategories();
+		$filterScope        = $this->settingsRepository->getFilterScope();
 
 		include PE_CATEGORY_FILTER_PLUGIN_DIR . 'src/Admin/views/settings-page.php';
 	}
@@ -120,6 +131,20 @@ class SettingsPage {
 		// Sanitize and validate.
 		$sanitized = array_map( 'absint', $value );
 		return array_values( array_unique( array_filter( $sanitized, fn( $id ) => $id > 0 && $id < 999999 ) ) );
+	}
+
+	/**
+	 * Sanitize the filter scope input.
+	 *
+	 * @param mixed $value Input value.
+	 * @return string A valid scope; falls back to the default when invalid.
+	 */
+	public function sanitizeFilterScope( $value ): string {
+		if ( is_string( $value ) && in_array( $value, Constants::VALID_FILTER_SCOPES, true ) ) {
+			return $value;
+		}
+
+		return Constants::DEFAULT_FILTER_SCOPE;
 	}
 
 	/**

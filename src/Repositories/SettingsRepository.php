@@ -22,6 +22,11 @@ class SettingsRepository implements SettingsRepositoryInterface {
 	 */
 	private const EXCLUDED_CATEGORIES_OPTION = 'pecf_excluded_categories';
 
+	/**
+	 * Filter scope option name
+	 */
+	private const FILTER_SCOPE_OPTION = 'pecf_filter_scope';
+
 
 	/**
 	 * Cache group for WordPress object cache
@@ -89,6 +94,46 @@ class SettingsRepository implements SettingsRepositoryInterface {
 		if ( $result ) {
 			// Clear cache.
 			wp_cache_delete( 'pecf_excluded_categories', self::CACHE_GROUP );
+		}
+
+		return (bool) $result;
+	}
+
+	/**
+	 * Get the configured filter scope.
+	 *
+	 * Falls back to the default scope when the stored value is missing or not
+	 * a recognized scope.
+	 *
+	 * @return string One of Constants::VALID_FILTER_SCOPES.
+	 */
+	public function getFilterScope(): string {
+		$scope = get_option( self::FILTER_SCOPE_OPTION, Constants::DEFAULT_FILTER_SCOPE );
+
+		if ( ! is_string( $scope ) || ! in_array( $scope, Constants::VALID_FILTER_SCOPES, true ) ) {
+			return Constants::DEFAULT_FILTER_SCOPE;
+		}
+
+		return $scope;
+	}
+
+	/**
+	 * Set the filter scope.
+	 *
+	 * @param string $scope One of Constants::VALID_FILTER_SCOPES.
+	 * @return bool True on success, false on failure (invalid scope).
+	 */
+	public function setFilterScope( string $scope ): bool {
+		if ( ! in_array( $scope, Constants::VALID_FILTER_SCOPES, true ) ) {
+			return false;
+		}
+
+		$result = update_option( self::FILTER_SCOPE_OPTION, $scope );
+
+		// update_option() returns false when the value is unchanged; treat a
+		// matching stored value as success (consistent with setExcludedCategories()).
+		if ( false === $result && get_option( self::FILTER_SCOPE_OPTION, null ) === $scope ) {
+			$result = true;
 		}
 
 		return (bool) $result;
