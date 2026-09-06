@@ -28,6 +28,14 @@ if ( ! class_exists( '\WP_Query' ) ) {
             return true;
         }
 
+        public function is_front_page() {
+            return false;
+        }
+
+        public function get( $key, $default = '' ) {
+            return $default;
+        }
+
         public function set( $key, $value ) {
             // Intentionally empty for tests. Mocks will override behavior.
         }

@@ -8,6 +8,7 @@
 
 namespace PavelEspinal\WpPlugins\PECategoryFilter\Filters;
 
+use PavelEspinal\WpPlugins\PECategoryFilter\Core\Constants;
 use PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterface;
 
 /**
@@ -53,28 +54,77 @@ class CategoryFilter {
 	/**
 	 * Determine whether the given query should be filtered.
 	 *
-	 * Made protected so tests can override this behavior when needed.
+	 * Honors the configured filter scope:
+	 * - 'blog_index' : the main query on the blog posts index (is_home()).
+	 * - 'front_page' : the above plus the main query on a static front page.
+	 * - 'secondary'  : any front-end query that targets posts (main or
+	 *                  secondary), which also covers theme homepage sections.
 	 *
 	 * @param \WP_Query $query The WordPress query object.
 	 * @return bool True if the query should be filtered
 	 */
 	protected function shouldFilter( \WP_Query $query ): bool {
-		// Only filter main queries on the home page.
+		// Never filter admin queries.
+		if ( $this->isAdmin() ) {
+			return false;
+		}
+
+		$scope = $this->settingsRepository->getFilterScope();
+
+		// 'secondary' also covers secondary front-end post queries, such as
+		// theme homepage sections and recent-posts blocks.
+		if ( Constants::SCOPE_SECONDARY === $scope ) {
+			return $this->targetsPosts( $query );
+		}
+
+		// The remaining scopes only affect the main query.
 		if ( ! $query->is_main_query() ) {
 			return false;
 		}
 
-		// Don't filter admin queries.
-		if ( is_admin() ) {
-			return false;
+		// The blog posts index is in scope for every scope value.
+		if ( $query->is_home() ) {
+			return true;
 		}
 
-		// Only filter home page queries.
-		if ( ! $query->is_home() ) {
-			return false;
+		// 'front_page' additionally covers a static front page.
+		if ( Constants::SCOPE_FRONT_PAGE === $scope && $query->is_front_page() ) {
+			return true;
 		}
 
-		return true;
+		return false;
+	}
+
+	/**
+	 * Whether the current request is in the WordPress admin.
+	 *
+	 * Wrapped so tests can override it without defining global functions.
+	 *
+	 * @return bool
+	 */
+	protected function isAdmin(): bool {
+		return is_admin();
+	}
+
+	/**
+	 * Whether the query targets the 'post' post type.
+	 *
+	 * @param \WP_Query $query The WordPress query object.
+	 * @return bool
+	 */
+	private function targetsPosts( \WP_Query $query ): bool {
+		$postType = $query->get( 'post_type' );
+
+		if ( empty( $postType ) ) {
+			// An empty post_type defaults to 'post' for standard queries.
+			return true;
+		}
+
+		if ( is_array( $postType ) ) {
+			return in_array( 'post', $postType, true );
+		}
+
+		return 'post' === $postType;
 	}
 
 	/**

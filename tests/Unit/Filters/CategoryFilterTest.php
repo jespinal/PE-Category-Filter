@@ -41,6 +41,8 @@ class CategoryFilterTest extends TestCase
     public function testFilterCategoriesWithExcludedCategories(): void
     {
         $excludedCategories = [1, 2, 3];
+
+        $this->settingsRepository->method('getFilterScope')->willReturn('blog_index');
         
         // Mock settings repository
         $this->settingsRepository
@@ -67,6 +69,8 @@ class CategoryFilterTest extends TestCase
      */
     public function testFilterCategoriesWithNoExcludedCategories(): void
     {
+        $this->settingsRepository->method('getFilterScope')->willReturn('blog_index');
+
         // Mock settings repository to return empty array
         $this->settingsRepository
             ->expects($this->once())
@@ -91,6 +95,8 @@ class CategoryFilterTest extends TestCase
      */
     public function testFilterCategoriesWithNonHomeQuery(): void
     {
+        $this->settingsRepository->method('getFilterScope')->willReturn('blog_index');
+
         // Set mock admin state
         $this->categoryFilter->setMockIsAdmin(false);
 
@@ -174,6 +180,133 @@ class CategoryFilterTest extends TestCase
             ->willReturn([]);
 
         $this->assertFalse($this->categoryFilter->isCategoryExcluded(1));
+    }
+
+    /**
+     * Test filter applies on a static front page when scope is 'front_page'
+     */
+    public function testFilterAppliesOnStaticFrontPageWhenScopeIsFrontPage(): void
+    {
+        $excluded = [5, 6];
+
+        $this->settingsRepository->method('getFilterScope')->willReturn('front_page');
+        $this->settingsRepository
+            ->expects($this->once())
+            ->method('getExcludedCategories')
+            ->willReturn($excluded);
+
+        $this->categoryFilter->setMockIsAdmin(false);
+
+        // Static front page: main query, not is_home, but is_front_page.
+        $query = $this->createScopedQuery(true, false, true);
+        $query->expects($this->once())
+            ->method('set')
+            ->with('category__not_in', $excluded);
+
+        $this->categoryFilter->filterCategories($query);
+    }
+
+    /**
+     * Test filter skips a static front page when scope is 'blog_index'
+     */
+    public function testFilterSkipsStaticFrontPageWhenScopeIsBlogIndex(): void
+    {
+        $this->settingsRepository->method('getFilterScope')->willReturn('blog_index');
+        $this->settingsRepository
+            ->expects($this->never())
+            ->method('getExcludedCategories');
+
+        $this->categoryFilter->setMockIsAdmin(false);
+
+        $query = $this->createScopedQuery(true, false, true);
+        $query->expects($this->never())->method('set');
+
+        $this->categoryFilter->filterCategories($query);
+    }
+
+    /**
+     * Test filter applies to a secondary post query when scope is 'secondary'
+     */
+    public function testFilterAppliesToSecondaryPostQueryWhenScopeIsSecondary(): void
+    {
+        $excluded = [7];
+
+        $this->settingsRepository->method('getFilterScope')->willReturn('secondary');
+        $this->settingsRepository
+            ->expects($this->once())
+            ->method('getExcludedCategories')
+            ->willReturn($excluded);
+
+        $this->categoryFilter->setMockIsAdmin(false);
+
+        // Secondary query (e.g. theme homepage section): not main, targets posts.
+        $query = $this->createScopedQuery(false, false, false, 'post');
+        $query->expects($this->once())
+            ->method('set')
+            ->with('category__not_in', $excluded);
+
+        $this->categoryFilter->filterCategories($query);
+    }
+
+    /**
+     * Test filter skips a secondary query when scope is 'blog_index'
+     */
+    public function testFilterSkipsSecondaryQueryWhenScopeIsBlogIndex(): void
+    {
+        $this->settingsRepository->method('getFilterScope')->willReturn('blog_index');
+        $this->settingsRepository
+            ->expects($this->never())
+            ->method('getExcludedCategories');
+
+        $this->categoryFilter->setMockIsAdmin(false);
+
+        $query = $this->createScopedQuery(false, false, false, 'post');
+        $query->expects($this->never())->method('set');
+
+        $this->categoryFilter->filterCategories($query);
+    }
+
+    /**
+     * Test filter skips a non-post secondary query even when scope is 'secondary'
+     */
+    public function testFilterSkipsNonPostSecondaryQueryWhenScopeIsSecondary(): void
+    {
+        $this->settingsRepository->method('getFilterScope')->willReturn('secondary');
+        $this->settingsRepository
+            ->expects($this->never())
+            ->method('getExcludedCategories');
+
+        $this->categoryFilter->setMockIsAdmin(false);
+
+        // Secondary query for a non-post type (e.g. a page/CPT) must be skipped.
+        $query = $this->createScopedQuery(false, false, false, 'page');
+        $query->expects($this->never())->method('set');
+
+        $this->categoryFilter->filterCategories($query);
+    }
+
+    /**
+     * Create a fully-stubbed mock WP_Query for scope tests.
+     *
+     * @param bool   $isMainQuery  Whether the query is the main query.
+     * @param bool   $isHome       Whether the query is the blog posts index.
+     * @param bool   $isFrontPage  Whether the query is the front page.
+     * @param string $postType     Post type the query targets.
+     * @return MockObject Mock WP_Query
+     */
+    private function createScopedQuery(
+        bool $isMainQuery,
+        bool $isHome,
+        bool $isFrontPage,
+        string $postType = 'post'
+    ): MockObject {
+        $query = $this->createMock(\WP_Query::class);
+        $query->method('is_main_query')->willReturn($isMainQuery);
+        $query->method('is_home')->willReturn($isHome);
+        $query->method('is_front_page')->willReturn($isFrontPage);
+        $query->method('get')->with('post_type')->willReturn($postType);
+
+        return $query;
     }
 
     /**

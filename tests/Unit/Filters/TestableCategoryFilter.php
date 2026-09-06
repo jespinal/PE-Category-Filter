@@ -3,11 +3,12 @@
 namespace PavelEspinal\WpPlugins\PECategoryFilter\Tests\Unit\Filters;
 
 use PavelEspinal\WpPlugins\PECategoryFilter\Filters\CategoryFilter;
-use PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterface;
-use WP_Query;
 
 /**
- * Testable version of CategoryFilter that allows mocking of WordPress functions
+ * Testable version of CategoryFilter that allows mocking of WordPress functions.
+ *
+ * Only the admin check is overridden; the real shouldFilter() logic (including
+ * the filter scope) is exercised by the tests.
  */
 class TestableCategoryFilter extends CategoryFilter
 {
@@ -24,14 +25,13 @@ class TestableCategoryFilter extends CategoryFilter
     }
 
     /**
-     * Override shouldFilter to use mock admin state
+     * Override isAdmin() so tests can control admin state without defining
+     * global WordPress functions.
      *
-     * @param WP_Query $query WordPress query object
-     * @return bool True if query should be filtered
+     * @return bool
      */
-    protected function shouldFilter(WP_Query $query): bool
+    protected function isAdmin(): bool
     {
-        // Only filter main query on home page and not in admin
-        return $query->is_main_query() && $query->is_home() && ! $this->mockIsAdmin;
+        return $this->mockIsAdmin;
     }
 }
