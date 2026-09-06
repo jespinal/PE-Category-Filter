@@ -286,6 +286,29 @@ class CategoryFilterTest extends TestCase
     }
 
     /**
+     * Test excluding a parent category also excludes its descendant categories
+     */
+    public function testFilterExpandsParentToIncludeChildCategories(): void
+    {
+        $this->settingsRepository->method('getFilterScope')->willReturn('blog_index');
+        $this->settingsRepository
+            ->expects($this->once())
+            ->method('getExcludedCategories')
+            ->willReturn([10]);
+
+        $this->categoryFilter->setMockIsAdmin(false);
+        // Parent 10 has children 11 and 12.
+        $this->categoryFilter->setMockDescendants([10 => [11, 12]]);
+
+        $query = $this->createMockWPQuery(true, true);
+        $query->expects($this->once())
+            ->method('set')
+            ->with('category__not_in', [10, 11, 12]);
+
+        $this->categoryFilter->filterCategories($query);
+    }
+
+    /**
      * Create a fully-stubbed mock WP_Query for scope tests.
      *
      * @param bool   $isMainQuery  Whether the query is the main query.

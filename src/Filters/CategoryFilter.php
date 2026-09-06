@@ -47,7 +47,7 @@ class CategoryFilter {
 		$excludedCategories = $this->settingsRepository->getExcludedCategories();
 
 		if ( ! empty( $excludedCategories ) ) {
-			$query->set( 'category__not_in', $excludedCategories );
+			$query->set( 'category__not_in', $this->expandWithChildren( $excludedCategories ) );
 		}
 	}
 
@@ -125,6 +125,42 @@ class CategoryFilter {
 		}
 
 		return 'post' === $postType;
+	}
+
+	/**
+	 * Expand a list of category IDs to also include their descendant categories.
+	 *
+	 * WordPress' `category__not_in` does not consider hierarchy, so excluding a
+	 * parent category would otherwise leave posts filed only under its children
+	 * visible. This expands each excluded parent to include all descendants.
+	 *
+	 * @param array<int> $categoryIds Category IDs selected for exclusion.
+	 * @return array<int> The IDs plus all their descendant category IDs.
+	 */
+	private function expandWithChildren( array $categoryIds ): array {
+		$expanded = $categoryIds;
+
+		foreach ( $categoryIds as $categoryId ) {
+			foreach ( $this->getCategoryDescendants( (int) $categoryId ) as $childId ) {
+				$expanded[] = (int) $childId;
+			}
+		}
+
+		return array_values( array_unique( array_map( 'absint', $expanded ) ) );
+	}
+
+	/**
+	 * Get the descendant category IDs for a given category.
+	 *
+	 * Wrapped so tests can override it without defining global functions.
+	 *
+	 * @param int $termId Category term ID.
+	 * @return array<int> Descendant category term IDs.
+	 */
+	protected function getCategoryDescendants( int $termId ): array {
+		$children = get_term_children( $termId, 'category' );
+
+		return is_array( $children ) ? $children : array();
 	}
 
 	/**
