@@ -23,7 +23,7 @@ final class Constants {
 	 *
 	 * @since 2.0.0
 	 */
-	public const VERSION = '2.0.1';
+	public const VERSION = '2.1.0';
 
 	/**
 	 * Minimum WordPress version required
@@ -66,6 +66,50 @@ final class Constants {
 	 * @since 2.0.0
 	 */
 	public const CACHE_GROUP = 'pe_category_filter';
+
+	/**
+	 * Filter scope: only the blog posts index (main query on is_home()).
+	 *
+	 * Default value; preserves the plugin's original behavior.
+	 *
+	 * @since 2.1.0
+	 */
+	public const SCOPE_BLOG_INDEX = 'blog_index';
+
+	/**
+	 * Filter scope: blog index plus a static front page (main query on
+	 * is_front_page()).
+	 *
+	 * @since 2.1.0
+	 */
+	public const SCOPE_FRONT_PAGE = 'front_page';
+
+	/**
+	 * Filter scope: also secondary front-end post queries, such as theme
+	 * homepage sections and recent-posts blocks.
+	 *
+	 * @since 2.1.0
+	 */
+	public const SCOPE_SECONDARY = 'secondary';
+
+	/**
+	 * Default filter scope.
+	 *
+	 * @since 2.1.0
+	 */
+	public const DEFAULT_FILTER_SCOPE = self::SCOPE_BLOG_INDEX;
+
+	/**
+	 * All valid filter scope values.
+	 *
+	 * @since 2.1.0
+	 * @var array<int, string>
+	 */
+	public const VALID_FILTER_SCOPES = array(
+		self::SCOPE_BLOG_INDEX,
+		self::SCOPE_FRONT_PAGE,
+		self::SCOPE_SECONDARY,
+	);
 
 	/**
 	 * Prevent instantiation of this utility class

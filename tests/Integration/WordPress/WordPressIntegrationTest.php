@@ -155,7 +155,7 @@ class WordPressIntegrationTest extends TestCase
         // Mock WordPress functions
         $this->mockWordPressFunction('register_setting', function ($option_group, $option_name, $args) {
             $this->assertEquals('pecf_settings', $option_group);
-            $this->assertEquals('pecf_excluded_categories', $option_name);
+            $this->assertContains($option_name, ['pecf_excluded_categories', 'pecf_filter_scope']);
             $this->assertIsArray($args);
             return true;
         });

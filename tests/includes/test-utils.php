@@ -28,9 +28,29 @@ if ( ! class_exists( '\WP_Query' ) ) {
             return true;
         }
 
+        public function is_front_page() {
+            return false;
+        }
+
+        public function get( $key, $default = '' ) {
+            return $default;
+        }
+
         public function set( $key, $value ) {
             // Intentionally empty for tests. Mocks will override behavior.
         }
+    }
+}
+
+// Provide get_term_children so the category-hierarchy expansion is testable.
+// Returns an empty array by default; tests can register a mock to supply
+// descendants for a given parent term.
+if ( ! function_exists( 'get_term_children' ) ) {
+    function get_term_children( $term_id, $taxonomy ) {
+        if ( isset( $GLOBALS['__pecf_wp_function_mocks']['get_term_children'] ) ) {
+            return call_user_func( $GLOBALS['__pecf_wp_function_mocks']['get_term_children'], $term_id, $taxonomy );
+        }
+        return array();
     }
 }
 

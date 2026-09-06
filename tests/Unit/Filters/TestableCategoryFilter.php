@@ -3,15 +3,23 @@
 namespace PavelEspinal\WpPlugins\PECategoryFilter\Tests\Unit\Filters;
 
 use PavelEspinal\WpPlugins\PECategoryFilter\Filters\CategoryFilter;
-use PavelEspinal\WpPlugins\PECategoryFilter\Interfaces\SettingsRepositoryInterface;
-use WP_Query;
 
 /**
- * Testable version of CategoryFilter that allows mocking of WordPress functions
+ * Testable version of CategoryFilter that allows mocking of WordPress functions.
+ *
+ * Only the admin check is overridden; the real shouldFilter() logic (including
+ * the filter scope) is exercised by the tests.
  */
 class TestableCategoryFilter extends CategoryFilter
 {
     private bool $mockIsAdmin = false;
+
+    /**
+     * Map of parent term ID => descendant term IDs, for tests.
+     *
+     * @var array<int, array<int>>
+     */
+    private array $mockDescendants = [];
 
     /**
      * Set the mock admin state
@@ -24,14 +32,35 @@ class TestableCategoryFilter extends CategoryFilter
     }
 
     /**
-     * Override shouldFilter to use mock admin state
+     * Set the mock descendants map (parent ID => child IDs).
      *
-     * @param WP_Query $query WordPress query object
-     * @return bool True if query should be filtered
+     * @param array<int, array<int>> $map Descendants keyed by parent term ID.
      */
-    protected function shouldFilter(WP_Query $query): bool
+    public function setMockDescendants(array $map): void
     {
-        // Only filter main query on home page and not in admin
-        return $query->is_main_query() && $query->is_home() && ! $this->mockIsAdmin;
+        $this->mockDescendants = $map;
+    }
+
+    /**
+     * Override getCategoryDescendants() so tests can control hierarchy without
+     * defining global WordPress functions.
+     *
+     * @param int $termId Category term ID.
+     * @return array<int> Descendant term IDs.
+     */
+    protected function getCategoryDescendants(int $termId): array
+    {
+        return $this->mockDescendants[$termId] ?? [];
+    }
+
+    /**
+     * Override isAdmin() so tests can control admin state without defining
+     * global WordPress functions.
+     *
+     * @return bool
+     */
+    protected function isAdmin(): bool
+    {
+        return $this->mockIsAdmin;
     }
 }

@@ -86,10 +86,8 @@ class WordPressIntegration {
 	 * @return void
 	 */
 	public function filterMainQuery( WP_Query $query ): void {
-		if ( ! $query->is_main_query() || is_admin() || ! $query->is_home() ) {
-			return;
-		}
-
+		// Query eligibility is decided in a single place: CategoryFilter::shouldFilter().
+		// filterCategories() calls it internally and no-ops when the query is not eligible.
 		$categoryFilter = $this->container->make( CategoryFilter::class );
 		$categoryFilter->filterCategories( $query );
 	}

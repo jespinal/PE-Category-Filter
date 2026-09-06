@@ -153,7 +153,7 @@ class SettingsRepositoryTest extends TestCase
     {
         $expectedSettings = [
             'excluded_categories' => [1, 2, 3],
-            'version' => '2.0.1',
+            'version' => '2.1.0',
             'last_updated' => '2025-01-04 12:00:00'
         ];
         
@@ -258,8 +258,68 @@ class SettingsRepositoryTest extends TestCase
         });
 
         $value = $this->repository->getSetting($key, $defaultValue);
-        
+
         $this->assertEquals($defaultValue, $value);
+    }
+
+    /**
+     * Test get filter scope returns the default when unset
+     */
+    public function testGetFilterScopeDefault(): void
+    {
+        delete_option('pecf_filter_scope');
+
+        $this->assertEquals('blog_index', $this->repository->getFilterScope());
+    }
+
+    /**
+     * Test get filter scope returns a valid stored value
+     */
+    public function testGetFilterScopeValid(): void
+    {
+        update_option('pecf_filter_scope', 'secondary');
+
+        $this->assertEquals('secondary', $this->repository->getFilterScope());
+
+        delete_option('pecf_filter_scope');
+    }
+
+    /**
+     * Test get filter scope falls back to the default on an invalid value
+     */
+    public function testGetFilterScopeInvalid(): void
+    {
+        update_option('pecf_filter_scope', 'bogus');
+
+        $this->assertEquals('blog_index', $this->repository->getFilterScope());
+
+        delete_option('pecf_filter_scope');
+    }
+
+    /**
+     * Test set filter scope with a valid value persists and returns true
+     */
+    public function testSetFilterScopeValid(): void
+    {
+        delete_option('pecf_filter_scope');
+
+        $this->assertTrue($this->repository->setFilterScope('front_page'));
+        $this->assertEquals('front_page', $this->repository->getFilterScope());
+
+        delete_option('pecf_filter_scope');
+    }
+
+    /**
+     * Test set filter scope rejects an invalid value without persisting it
+     */
+    public function testSetFilterScopeInvalid(): void
+    {
+        delete_option('pecf_filter_scope');
+
+        $this->assertFalse($this->repository->setFilterScope('bogus'));
+        $this->assertEquals('blog_index', $this->repository->getFilterScope());
+
+        delete_option('pecf_filter_scope');
     }
 
     /**
