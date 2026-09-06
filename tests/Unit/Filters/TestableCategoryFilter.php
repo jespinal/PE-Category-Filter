@@ -14,6 +14,8 @@ class TestableCategoryFilter extends CategoryFilter
 {
     private bool $mockIsAdmin = false;
 
+    private bool $mockIsFrontContext = false;
+
     /**
      * Map of parent term ID => descendant term IDs, for tests.
      *
@@ -62,5 +64,26 @@ class TestableCategoryFilter extends CategoryFilter
     protected function isAdmin(): bool
     {
         return $this->mockIsAdmin;
+    }
+
+    /**
+     * Set the mock front-context state (front page or blog index).
+     *
+     * @param bool $isFrontContext Whether the request is the front page/home.
+     */
+    public function setMockIsFrontContext(bool $isFrontContext): void
+    {
+        $this->mockIsFrontContext = $isFrontContext;
+    }
+
+    /**
+     * Override isFrontContext() so tests can control it without defining
+     * global WordPress functions.
+     *
+     * @return bool
+     */
+    protected function isFrontContext(): bool
+    {
+        return $this->mockIsFrontContext;
     }
 }

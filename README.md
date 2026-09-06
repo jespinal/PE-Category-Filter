@@ -19,7 +19,7 @@
 ## 📋 **Requirements**
 
 - **WordPress:** 6.0 or higher
-- **PHP:** 8.3 or higher  
+- **PHP:** 8.3 or higher
 - **MySQL:** 5.7 or higher (or MariaDB 10.3+)
 
 ## 🛠️ **Installation**
@@ -212,9 +212,7 @@ This plugin is actively used on:
 
 - **[pavelespinal.com](https://pavelespinal.com)** - Personal website and blog
 - **[slackware-es.com](https://slackware-es.com)** - Spanish Slackware Linux community
-- **[trendsanctuary.com](https://trendsanctuary.com)** - Technology, life and home trends and insights
 - **[ecosdeleden.com](https://ecosdeleden.com)** - Educational content for children
-- **[dietapaleo.com](https://dietapaleo.com)** - Paleo diet and lifestyle content
 
 ## 📖 **Background**
 

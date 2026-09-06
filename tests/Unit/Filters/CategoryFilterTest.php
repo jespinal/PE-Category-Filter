@@ -238,9 +238,77 @@ class CategoryFilterTest extends TestCase
             ->willReturn($excluded);
 
         $this->categoryFilter->setMockIsAdmin(false);
+        // Secondary query fired while rendering the front page / blog index.
+        $this->categoryFilter->setMockIsFrontContext(true);
 
         // Secondary query (e.g. theme homepage section): not main, targets posts.
         $query = $this->createScopedQuery(false, false, false, 'post');
+        $query->expects($this->once())
+            ->method('set')
+            ->with('category__not_in', $excluded);
+
+        $this->categoryFilter->filterCategories($query);
+    }
+
+    /**
+     * Test a secondary post query OUTSIDE the front context is not filtered
+     * (e.g. a recent-posts widget on a category archive), so excluded posts
+     * stay accessible.
+     */
+    public function testFilterSkipsSecondaryQueryOutsideFrontContextWhenScopeIsSecondary(): void
+    {
+        $this->settingsRepository->method('getFilterScope')->willReturn('secondary');
+        $this->settingsRepository
+            ->expects($this->never())
+            ->method('getExcludedCategories');
+
+        $this->categoryFilter->setMockIsAdmin(false);
+        $this->categoryFilter->setMockIsFrontContext(false);
+
+        $query = $this->createScopedQuery(false, false, false, 'post');
+        $query->expects($this->never())->method('set');
+
+        $this->categoryFilter->filterCategories($query);
+    }
+
+    /**
+     * Test the main query of a category archive is NOT filtered under
+     * 'secondary' scope, so excluded categories remain browsable. (Regression
+     * test for the bug where category archives were emptied.)
+     */
+    public function testFilterSkipsCategoryArchiveMainQueryWhenScopeIsSecondary(): void
+    {
+        $this->settingsRepository->method('getFilterScope')->willReturn('secondary');
+        $this->settingsRepository
+            ->expects($this->never())
+            ->method('getExcludedCategories');
+
+        $this->categoryFilter->setMockIsAdmin(false);
+
+        // Category archive: main query, not home, not front page.
+        $query = $this->createScopedQuery(true, false, false, 'post');
+        $query->expects($this->never())->method('set');
+
+        $this->categoryFilter->filterCategories($query);
+    }
+
+    /**
+     * Test the blog index main query IS filtered under 'secondary' scope.
+     */
+    public function testFilterAppliesToBlogIndexMainQueryWhenScopeIsSecondary(): void
+    {
+        $excluded = [8];
+
+        $this->settingsRepository->method('getFilterScope')->willReturn('secondary');
+        $this->settingsRepository
+            ->expects($this->once())
+            ->method('getExcludedCategories')
+            ->willReturn($excluded);
+
+        $this->categoryFilter->setMockIsAdmin(false);
+
+        // Blog index: main query, is_home true.
+        $query = $this->createScopedQuery(true, true, false, 'post');
         $query->expects($this->once())
             ->method('set')
             ->with('category__not_in', $excluded);

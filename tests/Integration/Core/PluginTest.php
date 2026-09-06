@@ -66,7 +66,7 @@ class PluginTest extends TestCase
     {
         $version = $this->plugin->getVersion();
         
-        $this->assertEquals('2.1.0', $version);
+        $this->assertEquals('2.1.1', $version);
     }
 
     /**

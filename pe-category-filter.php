@@ -3,7 +3,7 @@
  * Plugin Name:   PE Category Filter
  * Plugin URI:    https://pavelespinal.com/wordpress-plugins-pe-category-filter/
  * Description:   Modern WordPress plugin for filtering categories from home page with enterprise-grade architecture, performance optimization, and security enhancements. Features intelligent caching and comprehensive testing.
- * Version:       2.1.0
+ * Version:       2.1.1
  * Requires at least: 6.0
  * Requires PHP:  8.3
  * Author:        Pavel Espinal

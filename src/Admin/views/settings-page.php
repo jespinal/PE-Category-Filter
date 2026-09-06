@@ -47,7 +47,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<input type="radio" name="pecf_filter_scope" value="secondary" <?php checked( $currentScope, 'secondary' ); ?> />
 								<?php esc_html_e( 'Everywhere on the front end (includes theme sections)', 'pe-category-filter' ); ?>
 							</label>
-							<p class="description"><?php esc_html_e( 'Also filters secondary post queries, such as theme homepage sections and recent-posts blocks. Use this if excluded posts still appear on your homepage.', 'pe-category-filter' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Also filters secondary post queries on the front page and blog index (theme homepage sections, recent-posts blocks). Excluded posts remain accessible on category pages, search and direct URLs.', 'pe-category-filter' ); ?></p>
 						</fieldset>
 					</td>
 				</tr>

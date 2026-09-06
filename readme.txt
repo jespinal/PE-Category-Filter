@@ -4,7 +4,7 @@ Tags: category, filter, performance, security, exclude
 Requires PHP: 8.3
 Requires at least: 6.0
 Tested up to: 7.1
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 License: GPLv2 or later
 
 Modern WordPress plugin for filtering categories from home page with performance optimization and security enhancements.
@@ -35,7 +35,7 @@ The plugin excludes posts from selected categories from your site's front-facing
 **Live Examples:**
 
 This plugin is actively used on:
-* [trendsanctuary.com](https://trendsanctuary.com) - Technology, life and home trends and insights
+* [slackware-es.com](https://slackware-es.com) - Spanish Slackware Linux community
 * [ecosdeleden.com](https://ecosdeleden.com) - Educational content for children
 
 == Installation ==
@@ -94,8 +94,6 @@ Yes, the plugin works with all major page builders including Elementor, Gutenber
 
 1. Plugin in the list of installed plugins.
 2. Plugin configuration panel.
-3. Plugin configuration panel - Help section showing Overview.
-4. Plugin configuration panel - Help section showing How to use guide.
 
 == License ==
 
@@ -108,6 +106,9 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 == Changelog ==
+
+= 2.1.1 =
+* Fixed: the "everywhere on the front end" scope no longer filters category archives, search results or feeds — excluded posts remain fully browsable there, as intended. The scope now applies only in the front page / blog index context.
 
 = 2.1.0 =
 * Added a "Filter scope" setting to control where excluded categories are hidden: blog posts index only (default), blog index plus a static front page, or everywhere on the front end (including theme homepage sections and recent-posts blocks). Fixes excluded posts still appearing on static front pages built from secondary queries.

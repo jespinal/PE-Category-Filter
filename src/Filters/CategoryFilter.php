@@ -71,10 +71,22 @@ class CategoryFilter {
 
 		$scope = $this->settingsRepository->getFilterScope();
 
-		// 'secondary' also covers secondary front-end post queries, such as
-		// theme homepage sections and recent-posts blocks.
+		// 'secondary' also covers secondary front-end post queries (theme
+		// homepage sections, recent-posts blocks) — but only in the front page
+		// / blog index context, so excluded posts stay accessible on category
+		// archives, search results, feeds and single posts.
 		if ( Constants::SCOPE_SECONDARY === $scope ) {
-			return $this->targetsPosts( $query );
+			if ( ! $this->targetsPosts( $query ) ) {
+				return false;
+			}
+
+			if ( $query->is_main_query() ) {
+				// Use the query's own conditionals (reliable in pre_get_posts).
+				return $query->is_home() || $query->is_front_page();
+			}
+
+			// Secondary query: the global context is already set at this point.
+			return $this->isFrontContext();
 		}
 
 		// The remaining scopes only affect the main query.
@@ -104,6 +116,19 @@ class CategoryFilter {
 	 */
 	protected function isAdmin(): bool {
 		return is_admin();
+	}
+
+	/**
+	 * Whether the current main request is the front page or the blog index.
+	 *
+	 * Wrapped so tests can override it without defining global functions. Used
+	 * only for secondary queries, where the global conditionals are reliable
+	 * (the main query has already been parsed by the time they run).
+	 *
+	 * @return bool
+	 */
+	protected function isFrontContext(): bool {
+		return is_front_page() || is_home();
 	}
 
 	/**
