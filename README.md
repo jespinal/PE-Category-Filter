@@ -8,6 +8,8 @@
 
 ## 🚀 **Features**
 
+- **Flexible filter scope:** Choose where excluded categories are hidden — the blog posts index only (default), also a static front page, or everywhere on the front end (including theme homepage sections and recent-posts blocks).
+- **Hierarchy-aware:** Excluding a parent category also excludes its child categories.
 - **Modern Architecture:** Symfony-inspired dependency injection and service layer patterns
 - **Performance Optimization:** Intelligent caching with 80% reduction in database queries
 - **Security Enhancements:** CSRF protection, input validation, and output escaping
@@ -177,7 +179,7 @@ This plugin uses centralized version management to ensure consistency across all
 **For Releases:**
 ```bash
 # Update version across all files with one command
-composer run version:update 2.0.1
+composer run version:update 2.1.0
 
 # Verify the version was updated
 composer run version:show
@@ -186,8 +188,8 @@ composer run version:show
 composer test
 
 # Commit and tag
-git add . && git commit -m "chore: bump version to 2.0.1"
-git tag v2.0.1
+git add . && git commit -m "chore: bump version to 2.1.0"
+git tag v2.1.0
 git push && git push --tags
 ```
 

@@ -15,6 +15,8 @@ PE Category Filter is a modern WordPress plugin that allows you to filter specif
 
 **Key Features:**
 
+* **Flexible filter scope:** Choose where excluded categories are hidden — the blog posts index only (default), also a static front page, or everywhere on the front end (including theme homepage sections and recent-posts blocks).
+* **Hierarchy-aware:** Excluding a parent category also excludes its child categories.
 * **Modern Architecture:** Symfony-inspired dependency injection and service layer patterns
 * **Performance Optimization:** Intelligent caching with 80% reduction in database queries
 * **Security Enhancements:** CSRF protection, input validation, and output escaping
@@ -23,7 +25,7 @@ PE Category Filter is a modern WordPress plugin that allows you to filter specif
 
 **How it works:**
 
-The plugin modifies WordPress's main query on the home page to exclude posts from selected categories. Posts from excluded categories won't appear on the home page, but they remain fully accessible through:
+The plugin excludes posts from selected categories from your site's front-facing listings, according to the filter scope you choose (blog posts index, static front page, or all front-end post queries including theme homepage sections). Posts from excluded categories won't appear there, but they remain fully accessible through:
 * Category archive pages
 * Search results
 * Direct URLs
