@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<tr>
 					<th scope="row"><?php esc_html_e( 'Filter scope', 'pe-category-filter' ); ?></th>
 					<td>
-						<fieldset>
+						<fieldset class="pecf-scope-options">
 							<legend class="screen-reader-text">
 								<?php esc_html_e( 'Choose where excluded categories are filtered', 'pe-category-filter' ); ?>
 							</legend>
@@ -535,5 +535,20 @@ jQuery(document).ready(function($) {
 	background: #d1ecf1;
 	border-color: #17a2b8;
 	color: #0c5460;
+}
+/* Filter scope: give each radio option room to breathe */
+.pecf-settings-page .pecf-scope-options label {
+	display: block;
+	font-weight: 600;
+	margin-top: 20px !important;
+}
+
+.pecf-settings-page .pecf-scope-options label:first-of-type {
+	margin-top: 0 !important;
+}
+
+.pecf-settings-page .pecf-scope-options .description {
+	margin: 4px 0 0 24px;
+	font-style: italic;
 }
 </style>

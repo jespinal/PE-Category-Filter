@@ -3,8 +3,8 @@ Contributors: khratos
 Tags: category, filter, performance, security, exclude
 Requires PHP: 8.3
 Requires at least: 6.0
-Tested up to: 6.8
-Stable tag: 2.0.1
+Tested up to: 7.1
+Stable tag: 2.1.0
 License: GPLv2 or later
 
 Modern WordPress plugin for filtering categories from home page with performance optimization and security enhancements.
@@ -106,6 +106,12 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 == Changelog ==
+
+= 2.1.0 =
+* Added a "Filter scope" setting to control where excluded categories are hidden: blog posts index only (default), blog index plus a static front page, or everywhere on the front end (including theme homepage sections and recent-posts blocks). Fixes excluded posts still appearing on static front pages built from secondary queries.
+* Excluding a parent category now also excludes its child categories.
+* Centralized the query-eligibility check as a single source of truth.
+* Backward compatible: the default scope preserves the previous behavior.
 
 = 2.0.1 =
 * Fixed admin interface category layout to display one per line
